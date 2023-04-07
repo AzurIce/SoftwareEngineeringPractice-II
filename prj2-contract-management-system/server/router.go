@@ -1,11 +1,16 @@
 package server
 
-import "github.com/gin-gonic/gin"
+import (
+    "github.com/gin-gonic/gin"
+    "prj2/server/middlewares"
+    "prj2/internal/bootstrap"
+)
 
 func InitRouter() *gin.Engine {
     r := gin.Default()
 
     // TODO: static file middleware
+    r.Use(middlewares.Frontend(bootstrap.StaticFS))
     // api := r.Group("api")
     {
         // No login required
