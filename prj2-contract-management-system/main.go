@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+    "prj2/server"
+)
 
 func main() {
-    fmt.Println("HelloWorld");
+    router := server.InitRouter()
+    router.Run(":8888")
 }
