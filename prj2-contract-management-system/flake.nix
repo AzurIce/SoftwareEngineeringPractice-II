@@ -13,7 +13,10 @@
         ];
 
         packages = with pkgs; [
-            statik
+          go
+          nodejs
+          nodePackages.pnpm
+          statik
         ];
       in
       {
