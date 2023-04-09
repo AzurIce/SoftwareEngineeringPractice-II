@@ -5,3 +5,15 @@
     <div class="rounded bg-blue border-dashed text-blue-9">Hello UnoCSS!</div>
     <div class="i-ri:bard-line"></div>
 </div>
+
+<script>
+	let count = 0;
+
+	function handleClick() {
+		count += 1;
+	}
+</script>
+
+<button on:click={handleClick}>
+	Clicked {count} {count === 1 ? 'time' : 'times'}
+</button>
