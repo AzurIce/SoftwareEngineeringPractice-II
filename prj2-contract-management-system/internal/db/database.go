@@ -26,6 +26,11 @@ func MustOpenDB() *DBHelper {
     return &DBHelper{db}
 }
 
+func (db *DBHelper) currentDatabase() (name string) {
+	db.DB.QueryRow("SELECT DATABASE()").Scan(&name)
+	return
+}
+
 func (db *DBHelper) HasTable(value interface{}) {
     var tableName string
     reflectValue := reflect.ValueOf(value)
@@ -37,6 +42,9 @@ func (db *DBHelper) HasTable(value interface{}) {
     }
     log.Println(tableName)
 
+    var res int
+    db.DB.QueryRow("SELECT count(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ? AND table_type = ?", db.currentDatabase(), tableName, "BASE TABLE").Scan(&res)
+    
 
 }
 
