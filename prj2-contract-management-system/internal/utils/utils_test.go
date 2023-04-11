@@ -3,6 +3,7 @@ package utils
 import (
     "fmt"
     "testing"
+	// "prj2/internal/models"
 )
 
 func TestToSnakeCase(t *testing.T) {
@@ -16,3 +17,12 @@ func TestToSnakeCase(t *testing.T) {
         t.Fail()
     }
 }
+
+// func TestGetTableName(t *testing.T) {
+//     modelType, err := GetModelType(&models.User{})
+//     if err != nil {
+//         t.Error(err)
+//     }
+//     tablename := GetTableName(modelType)
+//     fmt.Println(tablename)
+// }

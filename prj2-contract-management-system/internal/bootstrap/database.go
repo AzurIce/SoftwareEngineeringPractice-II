@@ -1,8 +1,9 @@
 package bootstrap
 
 import (
-    "log"
-    "prj2/internal/db"
+	"log"
+	"prj2/internal/db"
+	"prj2/internal/models"
 )
 
 var DB *db.DBHelper
@@ -13,9 +14,8 @@ func init() {
 }
 
 func initTables() {
-    var err error
-    err = DB.CreateTableIfNotExist("testt", "name varchar(8) PRIMARY KEY")
+    err := DB.CreateTable(&models.User{})
     if err != nil {
-        log.Panicf("Failed to create test table: %v\n", err)
+        log.Panicf("Failed to create table: %v\n", err)
     }
 }
