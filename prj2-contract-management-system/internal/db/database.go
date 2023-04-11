@@ -9,6 +9,8 @@ import (
     "strings"
     "errors"
 
+    "prj2/internal/utils"
+
     _ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -49,7 +51,7 @@ func (db *DBHelper) CreateTable(values ...any) error {
         modelType := reflect.Indirect(reflectValue).Type()
 
         tableName := modelType.Name()
-        tableName = strings.ToLower(tableName) + "s" // TODO: to snake_case
+        tableName = utils.ToSnakeCase(tableName) + "s"
         // fmt.Println(modelType.Name())
         // fmt.Println(modelType.NumField())
         defs := [] string{}
