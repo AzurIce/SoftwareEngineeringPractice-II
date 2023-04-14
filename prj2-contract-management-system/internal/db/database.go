@@ -147,7 +147,6 @@ func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
     tableName := GetTableName(destType)
 
     destFields := []interface{}{}
-
     for i := 0; i < destType.NumField(); i++ {
         destFields = append(destFields, destValue.Field(i).Addr().Interface())
     }
