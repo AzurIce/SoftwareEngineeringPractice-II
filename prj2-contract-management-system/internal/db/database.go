@@ -2,13 +2,10 @@ package db
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"prj2/internal/utils"
-	"reflect"
 	"strings"
-	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -31,20 +28,24 @@ func (db *DBHelper) CurrentDatabase() (name string) {
 }
 
 func (db *DBHelper) HasTable(value interface{}) bool {
-	modelType := utils.GetModelType(value)
-	tableName := utils.GetTableName(modelType)
+	modelType := GetModelType(value)
+	tableName := GetTableName(modelType)
 
 	var res int
 	db.DB.QueryRow("SELECT count(*) FROM information_schema.tables WHERE table_name = ? AND table_type = ?", tableName, "BASE TABLE").Scan(&res)
 	return res != 0
 }
 
-// CreateTable
-// Create tables based on the type of each one value of values if not exist
+// ------ ↓ ORM ↓ ------
+
+// Base on the type of the argument
+// the type of `value` should be the pointer of a struct
+
+// CreateTable creates tables based on the type of each one value of values if not exist
 func (db *DBHelper) CreateTable(values ...any) error {
 	for _, value := range values {
-		modelType := utils.GetModelType(value)
-		tableName := utils.GetTableName(modelType)
+		modelType := GetModelType(value)
+		tableName := GetTableName(modelType)
 		log.Printf("Creating table<%v>...\n", tableName)
 
 		if db.HasTable(db) {
@@ -54,117 +55,71 @@ func (db *DBHelper) CreateTable(values ...any) error {
 
 		// fmt.Println(modelType.Name())
 		// fmt.Println(modelType.NumField())
-		defs := []string{}
+		colDefs := []string{}
 
 		for i := 0; i < modelType.NumField(); i++ {
 			field := modelType.Field(i)
 
-			var colType string
-			if colType = modelType.Field(i).Tag.Get("sqlType"); len(colType) == 0 {
-				switch field.Type.Kind() {
-				case reflect.Bool:
-					colType = "bool"
-				case reflect.Int8, reflect.Uint8, reflect.Int16, reflect.Uint16:
-					colType = "smallint"
-				case reflect.Int32, reflect.Uint32:
-					colType = "integer"
-				case reflect.Int, reflect.Int64, reflect.Uint, reflect.Uint64:
-					colType = "bigint"
-				case reflect.Float32:
-					colType = "real"
-				case reflect.Float64:
-					colType = "double precision"
-				case reflect.String:
-					colType = "text"
-				default:
-					if field.Type == reflect.TypeOf(time.Time{}) {
-						colType = "timestampz"
-					}
-					// TODO
-				}
-			} else {
-				if colType == "serial" {
-					switch field.Type.Kind() {
-					case reflect.Int8, reflect.Uint8, reflect.Int16, reflect.Uint16:
-						colType = "smallserial"
-					case reflect.Int32, reflect.Uint32:
-						colType = "serial"
-					case reflect.Int, reflect.Int64, reflect.Uint, reflect.Uint64:
-						colType = "bigserial"
-					}
-				}
-			}
-			
-			def := fmt.Sprintf("%v %v %v", utils.ToSnakeCase(field.Name), colType, field.Tag.Get("sql"))
-			defs = append(defs, def)
-
-			// fmt.Printf("Field[%v]: %s %v\n", i, field.Name, field.Type)
-			// fmt.Printf("ColType: %v\n", colType)
-
-			// fmt.Printf("Tag: %v\n\n", field.Tag.Get("orm"))
+            colType := GetSQLType(field)
+			colDef := fmt.Sprintf("%v %v %v", utils.ToSnakeCase(field.Name), colType, field.Tag.Get("sql"))
+			colDefs = append(colDefs, colDef)
 		}
 
-		stmt := fmt.Sprintf("CREATE TABLE %s (%s)", tableName, strings.Join(defs, ",\n"))
-		log.Printf("Executing: %v", stmt)
+		stmt := fmt.Sprintf("CREATE TABLE %s (%s)", tableName, strings.Join(colDefs, ",\n"))
+		log.Printf("[CreateTable] Executing: %v\n", stmt)
 
 		_, err := db.DB.Exec(stmt)
 		if err != nil {
 			return err
 		}
-
 	}
 	return nil
 }
 
-// func (db *DBHelper) Exec(query string, args ...any) {
-//     db.DB.Exec(query, args)
-// }
-
-// ------ ↓ Traditional ↓ ------
-
 // Insert inserts value to the corresponding table according to its type
 // cols represents the columns should be used (empty for using all fields)
 func (db *DBHelper) Insert(value interface{}, cols ...string) (sql.Result, error) {
-	reflectValue := reflect.ValueOf(value)
-	if reflectValue.Type().Kind() == reflect.Ptr {
-		reflectValue = reflect.Indirect(reflectValue)
-	}
-	reflectType := reflectValue.Type()
+    modelType := GetModelType(value)
+    modelValue := GetModelValue(value)
 
 	// If no cols provided, make it contains all fields
-
-	ncols := []string{}
+    if len(cols) == 0 {
+        for i := 0; i < modelType.NumField(); i++ {
+            field := modelType.Field(i)
+            if field.Tag.Get("sqlType") == "serial" {
+                continue
+            }
+            cols = append(cols, utils.ToSnakeCase(field.Name))
+        }
+    }
 	valuesPlaceholder := []string{}
 	values := []any{}
-	for i := 0; i < reflectType.NumField(); i++ {
+	for i := 0; i < modelType.NumField(); i++ {
+        // check if the field is in cols
 		flag := false
 		for _, col := range cols {
-			if utils.ToSnakeCase(reflectType.Field(i).Name) == utils.ToSnakeCase(col) {
+			if utils.ToSnakeCase(modelType.Field(i).Name) == utils.ToSnakeCase(col) {
 				flag = true
 				break
 			}
 		}
-		if len(cols) == 0 || flag {
-			field := reflectType.Field(i)
-			fieldValue := reflectValue.Field(i)
-			if field.Tag.Get("sqlType") == "serial" { // ignore serial
-				continue
-			}
-			ncols = append(ncols, utils.ToSnakeCase(field.Name))
-			valuesPlaceholder = append(valuesPlaceholder, fmt.Sprintf("$%v", len(ncols)))
+
+		if flag {
+			fieldValue := modelValue.Field(i)
+
+			valuesPlaceholder = append(valuesPlaceholder, fmt.Sprintf("$%v", len(values) + 1))
             values = append(values, fieldValue.Interface())
 		}
 	}
-	cols = ncols
-	fmt.Println(cols, len(cols))
-	fmt.Println(values, len(values))
+    fmt.Printf("Insert cols: %v\n", cols)
+    fmt.Printf("Insert values: %v\n", values)
 
-	tableName := utils.GetTableName(reflectType)
-	colsDefStr := strings.Join(cols, ", ")
-	valuesPlaceholderStr := strings.Join(valuesPlaceholder, ", ")
+	tableName := GetTableName(modelType)
+	colDefs := strings.Join(cols, ", ")
+	valueDefs := strings.Join(valuesPlaceholder, ", ")
 
-    stmt := fmt.Sprintf("INSERT INTO %v (%v) VALUES (%v)", tableName, colsDefStr, valuesPlaceholderStr)
-    fmt.Println(stmt)
+    stmt := fmt.Sprintf("INSERT INTO %v (%v) VALUES (%v)", tableName, colDefs, valueDefs)
+	log.Printf("[Insert] Executing: %v\n", stmt)
 
 	res, err := db.DB.Exec(
 		stmt,
@@ -183,18 +138,29 @@ func (db *DBHelper) Insert(value interface{}, cols ...string) (sql.Result, error
 //     conds[0]: query: query str
 //     conds[1:]: args: query args
 func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
-    if reflect.TypeOf(dest).Kind() != reflect.Ptr {
-        return errors.New("the argument should be a pointer")
-    }
-    dest = reflect.Indirect(reflect.ValueOf(dest)).Interface()
-
-    destValue := reflect.Indirect(reflect.ValueOf(dest))
-    destType := reflect.TypeOf(destValue.Interface())
+    destType := GetModelType(dest)
+    destValue := GetModelValue(dest)
 
     fmt.Println(destValue, destType)
 
     // modelType := utils.GetModelType(dest)
-    // tableName := utils.GetTableName(modelType)
+    tableName := GetTableName(destType)
+
+    destFields := []interface{}{}
+
+    for i := 0; i < destType.NumField(); i++ {
+        destFields = append(destFields, destValue.Field(i).Addr().Interface())
+    }
+
+    // No conditions
+    if len(conds) == 0 {
+        err :=  db.DB.QueryRow(
+            fmt.Sprintf("SELECT * FROM %v", tableName),
+        ).Scan(destFields...)
+        if err != nil {
+            return err
+        }
+    }
 
     // if len(conds) == 0 {
     //     if reflect.TypeOf(dest).Kind() != reflect.Ptr || reflect.TypeOf(reflect.)reflect.Slice{

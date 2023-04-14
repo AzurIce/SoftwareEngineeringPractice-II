@@ -40,11 +40,12 @@ func TestFirst(t *testing.T) {
 	db := MustOpenDB()
 
 	// value := &models.User{}
-	value := &[]models.User{}
+	value := &models.User{}
 	err := db.First(value)
 	if err != nil {
 		t.Error(err)
 	}
+    fmt.Println(value)
 }
 
 func TestHasTable(t *testing.T) {
