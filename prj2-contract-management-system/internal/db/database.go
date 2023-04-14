@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"prj2/internal/utils"
@@ -59,28 +60,42 @@ func (db *DBHelper) CreateTable(values ...any) error {
 			field := modelType.Field(i)
 
 			var colType string
-			switch field.Type.Kind() {
-			case reflect.Bool:
-				colType = "bool"
-			case reflect.Int8, reflect.Uint8, reflect.Int16, reflect.Uint16:
-				colType = "smallint"
-			case reflect.Int32, reflect.Uint32:
-				colType = "integer"
-			case reflect.Int, reflect.Int64, reflect.Uint, reflect.Uint64:
-				colType = "bigint"
-			case reflect.Float32:
-				colType = "real"
-			case reflect.Float64:
-				colType = "double precision"
-			case reflect.String:
-				colType = "text"
-			default:
-				if field.Type == reflect.TypeOf(time.Time{}) {
-					colType = "timestampz"
+			if colType = modelType.Field(i).Tag.Get("sqlType"); len(colType) == 0 {
+				switch field.Type.Kind() {
+				case reflect.Bool:
+					colType = "bool"
+				case reflect.Int8, reflect.Uint8, reflect.Int16, reflect.Uint16:
+					colType = "smallint"
+				case reflect.Int32, reflect.Uint32:
+					colType = "integer"
+				case reflect.Int, reflect.Int64, reflect.Uint, reflect.Uint64:
+					colType = "bigint"
+				case reflect.Float32:
+					colType = "real"
+				case reflect.Float64:
+					colType = "double precision"
+				case reflect.String:
+					colType = "text"
+				default:
+					if field.Type == reflect.TypeOf(time.Time{}) {
+						colType = "timestampz"
+					}
+					// TODO
 				}
-				// TODO
+			} else {
+				if colType == "serial" {
+					switch field.Type.Kind() {
+					case reflect.Int8, reflect.Uint8, reflect.Int16, reflect.Uint16:
+						colType = "smallserial"
+					case reflect.Int32, reflect.Uint32:
+						colType = "serial"
+					case reflect.Int, reflect.Int64, reflect.Uint, reflect.Uint64:
+						colType = "bigserial"
+					}
+				}
 			}
-			def := fmt.Sprintf("%v %v %v", field.Name, colType, field.Tag.Get("orm"))
+			
+			def := fmt.Sprintf("%v %v %v", utils.ToSnakeCase(field.Name), colType, field.Tag.Get("sql"))
 			defs = append(defs, def)
 
 			// fmt.Printf("Field[%v]: %s %v\n", i, field.Name, field.Type)
@@ -107,19 +122,9 @@ func (db *DBHelper) CreateTable(values ...any) error {
 
 // ------ ↓ Traditional ↓ ------
 
-// func (db *DBHelper) CreateTableIfNotExist(tableName string, columnDefs ...string) error {
-// 	columnsDef := strings.Join(columnDefs, ",")
-// 	log.Println(tableName)
-// 	log.Println(columnsDef)
-// 	_, err := db.DB.Exec(
-// 		fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (%s)", tableName, columnsDef),
-// 	)
-// 	return err
-// }
-
 // Insert inserts value to the corresponding table according to its type
 // cols represents the columns should be used (empty for using all fields)
-func (db *DBHelper) Insert(value interface{}, cols ...string) error {
+func (db *DBHelper) Insert(value interface{}, cols ...string) (sql.Result, error) {
 	reflectValue := reflect.ValueOf(value)
 	if reflectValue.Type().Kind() == reflect.Ptr {
 		reflectValue = reflect.Indirect(reflectValue)
@@ -142,6 +147,9 @@ func (db *DBHelper) Insert(value interface{}, cols ...string) error {
 		if len(cols) == 0 || flag {
 			field := reflectType.Field(i)
 			fieldValue := reflectValue.Field(i)
+			if field.Tag.Get("sqlType") == "serial" { // ignore serial
+				continue
+			}
 			ncols = append(ncols, utils.ToSnakeCase(field.Name))
 			valuesPlaceholder = append(valuesPlaceholder, fmt.Sprintf("$%v", len(ncols)))
             values = append(values, fieldValue.Interface())
@@ -158,16 +166,52 @@ func (db *DBHelper) Insert(value interface{}, cols ...string) error {
     stmt := fmt.Sprintf("INSERT INTO %v (%v) VALUES (%v)", tableName, colsDefStr, valuesPlaceholderStr)
     fmt.Println(stmt)
 
-	_, err := db.DB.Exec(
+	res, err := db.DB.Exec(
 		stmt,
 		values...,
 	)
 
-    // _, err := db.DB.Exec(
-    //     "INSERT INTO users (username, nickname, password, usergroup) VALUES ($1, $2, $3, $4)",
-    //     "asdddd", "asddddd", "asddddd", 0,
-    // )
+	return res, err
+}
 
-	// values :=
-	return err
+// Query
+// dest: place to store the result
+// conds:
+//   if it only contains a integer: primary key
+//   if it only contains a string: query str
+//   if it contains many string:
+//     conds[0]: query: query str
+//     conds[1:]: args: query args
+func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
+    if reflect.TypeOf(dest).Kind() != reflect.Ptr {
+        return errors.New("the argument should be a pointer")
+    }
+    dest = reflect.Indirect(reflect.ValueOf(dest)).Interface()
+
+    destValue := reflect.Indirect(reflect.ValueOf(dest))
+    destType := reflect.TypeOf(destValue.Interface())
+
+    fmt.Println(destValue, destType)
+
+    // modelType := utils.GetModelType(dest)
+    // tableName := utils.GetTableName(modelType)
+
+    // if len(conds) == 0 {
+    //     if reflect.TypeOf(dest).Kind() != reflect.Ptr || reflect.TypeOf(reflect.)reflect.Slice{
+    //         return errors.New("The dest should be the pointer of a slice")
+    //     }
+    //     return db.DB.Query(
+    //         fmt.Sprintf("SELECT * FROM %v", tableName),
+    //     ).Scan(&dest)
+    // }
+
+    // if len(conds) == 1 && reflect.TypeOf(conds[0]).Kind() == reflect.integer {
+    //     // Primary key
+    // }
+    // 
+
+    // db.DB.Query(
+    //     fmt.Sprintf("SELECT * from %v WHERE %v", tableName, query)
+    // )
+    return nil
 }

@@ -21,6 +21,32 @@ func TestCreateTable(t *testing.T) {
 	}
 }
 
+func TestInsert(t *testing.T) {
+	db := MustOpenDB()
+
+	res, err := db.Insert(&models.User{
+		Username:  "tjw",
+		Nickname:  "tjw",
+		Password:  "sdsadasdd",
+		Usergroup: 0,
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(res.LastInsertId())
+}
+
+func TestFirst(t *testing.T) {
+	db := MustOpenDB()
+
+	// value := &models.User{}
+	value := &[]models.User{}
+	err := db.First(value)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestHasTable(t *testing.T) {
 	db := MustOpenDB()
 
@@ -93,15 +119,15 @@ func TestReflect(t *testing.T) {
 }
 
 func TestPlayground(t *testing.T) {
-    db := MustOpenDB()
+	// db := MustOpenDB()
 
-	err := db.Insert(&models.User{
-        Username: "tjw",
-        Nickname: "tjw",
-        Password: "sdsadasdd",
-        Usergroup: 0,
-    }, "username", "nickname", "password", "usergroup")
-    if err != nil {
-        t.Error(err)
-    }
+	// err := db.Insert(&models.User{
+	//     Username: "tjw",
+	//     Nickname: "tjw",
+	//     Password: "sdsadasdd",
+	//     Usergroup: 0,
+	// }, "username", "nickname", "password", "usergroup")
+	// if err != nil {
+	//     t.Error(err)
+	// }
 }
