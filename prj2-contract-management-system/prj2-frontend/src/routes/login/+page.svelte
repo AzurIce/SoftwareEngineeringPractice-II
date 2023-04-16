@@ -1,6 +1,4 @@
 <script lang="ts">
-  let loginTab = 0;
-  let code = "";
   let username = "";
   let password = "";
 
@@ -41,18 +39,20 @@
   flex flex-col
   justify-center
   items-center
-  bg-azurcraft bg-no-repeat bg-center
+  bg-white
+  bg-opacity-20
 "
 >
   <div
-    class="flex flex-col space-y-2 p-4 items-center
-    w-auto m-l-24px m-r-24px
+    class="flex flex-col space-y-2 p-8 items-center
+    w-auto
     sm:w-400px
     h-fit
     top-1/2
-    rounded-lg
+    rounded-xl
     bg-white bg-opacity-90
-    shadow-md
+    z-3
+    shadow-xl
   "
   >
     <!-- 登录 -->
@@ -92,6 +92,9 @@
         </div>
       </div>
     </div>
+    <div class="flex">
+      <a href="/register">立即注册</a>
+    </div>
     <button
       type="button"
       class="w-full text-white bg-blue-700 border-0
@@ -102,7 +105,7 @@
     >
       登录
     </button>
-    <button
+    <!-- <button
       type="button"
       class="w-full text-white bg-gray-700 border-0
       hover:cursor-pointer hover:bg-gray-800
@@ -111,6 +114,6 @@
       on:click={onLogin}
     >
       注册
-    </button>
+    </button> -->
   </div>
 </div>
