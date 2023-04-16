@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"math/rand"
 	"regexp"
 	"strings"
@@ -25,4 +27,15 @@ func RandStringRunes(n int) string {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
 	}
 	return string(b)
+}
+
+// EncodePassword encode password with salt
+func EncodePassword(password string, salt string) string {
+	//计算 Salt 和密码组合的SHA1摘要
+	hash := sha1.New()
+	hash.Write([]byte(password + salt))
+	bs := hex.EncodeToString(hash.Sum(nil))
+
+	//存储 Salt 值和摘要， ":"分割
+	return salt + ":" + string(bs)
 }
