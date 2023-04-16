@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"prj2/internal/utils"
+	"reflect"
 	"strings"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -130,7 +131,7 @@ func (db *DBHelper) Insert(value interface{}, cols ...string) (sql.Result, error
 }
 
 // Query
-// dest: place to store the result
+// dest: the pointer to a struct
 // conds:
 //   if it only contains a integer: primary key
 //   if it only contains a string: query str
@@ -159,24 +160,33 @@ func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
         if err != nil {
             return err
         }
-    }
+    } else if len(conds) == 1 {
+		switch reflect.TypeOf(conds[0]).Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			err :=  db.DB.QueryRow(
+				fmt.Sprintf("SELECT * FROM %v WHERE id = $1", tableName), conds[0],
+			).Scan(destFields...)
+			if err != nil {
+				return err
+			}
+		case reflect.String:
+			err :=  db.DB.QueryRow(
+				fmt.Sprintf("SELECT * FROM %v WHERE %v", tableName, conds[0]),
+			).Scan(destFields...)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		err :=  db.DB.QueryRow(
+			fmt.Sprintf("SELECT * FROM %v WHERE %v", tableName, conds[0]), conds[1:]...,
+		).Scan(destFields...)
+		if err != nil {
+			return err
+		}
+	}
 
-    // if len(conds) == 0 {
-    //     if reflect.TypeOf(dest).Kind() != reflect.Ptr || reflect.TypeOf(reflect.)reflect.Slice{
-    //         return errors.New("The dest should be the pointer of a slice")
-    //     }
-    //     return db.DB.Query(
-    //         fmt.Sprintf("SELECT * FROM %v", tableName),
-    //     ).Scan(&dest)
-    // }
-
-    // if len(conds) == 1 && reflect.TypeOf(conds[0]).Kind() == reflect.integer {
-    //     // Primary key
-    // }
-    // 
-
-    // db.DB.Query(
-    //     fmt.Sprintf("SELECT * from %v WHERE %v", tableName, query)
-    // )
     return nil
 }
+
+// func (db *DBHelper) Delete()
