@@ -1,10 +1,14 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+
   let username = "";
   let password = "";
 
   import { login } from "../../lib/api/user";
 
   function onLoggedIn(data: any) {
+    localStorage.setItem('prj2-jwt', data.token);
+    goto('/')
     // this.$store.commit("setToken", data.token);
     // this.$store.commit("setLogin");
     // this.$store.commit("setUser", data.user);
@@ -16,6 +20,7 @@
       // TODO: 用户名不能为空
       return;
     }
+    // TODO: 检查密码
     login(username, password)
       .then((res) => {
         console.log(res);

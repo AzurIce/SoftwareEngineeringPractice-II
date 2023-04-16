@@ -14,6 +14,7 @@ func init() {
 }
 
 func initTables() {
+    log.Println("Initializing tables...")
     if !DB.HasTable(&models.User{}) {
         err := DB.CreateTable(&models.User{})
         if err != nil {

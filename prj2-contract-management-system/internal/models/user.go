@@ -11,7 +11,7 @@ type User struct {
     ID        int    `sqlType:"serial" sql:"PRIMARY KEY" json:"id"`
     Username  string `sql:"NOT NULL CHECK (username <> '')" json:"username"`
     Nickname  string `sql:"NOT NULL CHECK (nickname <> '')" json:"nickname"`
-    Password  string `sql:"NOT NULL CHECK (CHAR_LENGTH(password) BETWEEN 6 AND 20)" json:"-"`
+    Password  string `sql:"NOT NULL" json:"-"`
     Usergroup int    `sql:"CHECK (usergroup BETWEEN 0 AND 3)" json:"usergroup"`
 }
 

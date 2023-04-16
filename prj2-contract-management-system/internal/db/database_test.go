@@ -52,6 +52,9 @@ func TestHasTable(t *testing.T) {
 	db := MustOpenDB()
 
 	res := db.HasTable(&models.User{})
+	if res != true {
+		t.Fail()
+	}
 	log.Println(res)
 }
 

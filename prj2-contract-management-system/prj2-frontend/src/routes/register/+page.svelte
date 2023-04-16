@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+
   let username = "";
   let password = "";
   let confirmedPassword = "";
@@ -6,6 +8,7 @@
   import { register } from "../../lib/api/user";
 
   function onRegistered(data: any) {
+    goto('/login')
     // this.$store.commit("setToken", data.token);
     // this.$store.commit("setLogin");
     // this.$store.commit("setUser", data.user);
@@ -13,9 +16,14 @@
     // this.$router.push("/");
   }
   function onRegister() {
+    console.log("onRegister")
     if (username == "") {
       // TODO: 用户名不能为空
       return;
+    }
+    if (password != confirmedPassword) {
+      // TODO: 密码不一致
+      return ;
     }
     register(username, password)
       .then((res) => {
@@ -78,11 +86,26 @@
           />
         </div>
         <!-- 密码 -->
-        <div class="mb-6 flex flex-col items-strech">
+        <div class="flex flex-col items-strech">
           <label
             for="password"
             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >Password</label
+          >
+          <input
+            type="password"
+            id="password"
+            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            bind:value={confirmedPassword}
+            required
+          />
+        </div>
+        <!-- 确认密码 -->
+        <div class="mb-6 flex flex-col items-strech">
+          <label
+            for="password"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >ConfirmPassword</label
           >
           <input
             type="password"

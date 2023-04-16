@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"prj2/internal/utils"
@@ -31,9 +32,11 @@ func (db *DBHelper) CurrentDatabase() (name string) {
 func (db *DBHelper) HasTable(value interface{}) bool {
 	modelType := GetModelType(value)
 	tableName := GetTableName(modelType)
+	// log.Printf("[HasTable]: Checking table<%v>\n", tableName)
 
 	var res int
-	db.DB.QueryRow("SELECT count(*) FROM information_schema.tables WHERE table_name = ? AND table_type = ?", tableName, "BASE TABLE").Scan(&res)
+	db.DB.QueryRow("SELECT count(*) FROM information_schema.tables WHERE table_name = $1 AND table_type = $2", tableName, "BASE TABLE").Scan(&res)
+	// log.Printf("[HasTable]: result: %v\n", res)
 	return res != 0
 }
 
@@ -139,6 +142,7 @@ func (db *DBHelper) Insert(value interface{}, cols ...string) (sql.Result, error
 //     conds[0]: query: query str
 //     conds[1:]: args: query args
 func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
+	log.Println("[db/First]: ")
     destType := GetModelType(dest)
     destValue := GetModelValue(dest)
 
@@ -166,6 +170,9 @@ func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
 			err :=  db.DB.QueryRow(
 				fmt.Sprintf("SELECT * FROM %v WHERE id = $1", tableName), conds[0],
 			).Scan(destFields...)
+			if err == sql.ErrNoRows {
+				return errors.New("no user")
+			}
 			if err != nil {
 				return err
 			}
@@ -173,6 +180,9 @@ func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
 			err :=  db.DB.QueryRow(
 				fmt.Sprintf("SELECT * FROM %v WHERE %v", tableName, conds[0]),
 			).Scan(destFields...)
+			if err == sql.ErrNoRows {
+				return errors.New("no user")
+			}
 			if err != nil {
 				return err
 			}
@@ -181,11 +191,14 @@ func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
 		err :=  db.DB.QueryRow(
 			fmt.Sprintf("SELECT * FROM %v WHERE %v", tableName, conds[0]), conds[1:]...,
 		).Scan(destFields...)
+		if err == sql.ErrNoRows {
+			return errors.New("no user")
+		}
 		if err != nil {
 			return err
 		}
 	}
-
+	
     return nil
 }
 

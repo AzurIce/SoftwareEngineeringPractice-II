@@ -3,6 +3,7 @@
 	afterNavigate((nav) => {
     // If not logged in, goto login page
     console.log(nav)
+    console.log(localStorage.getItem('prj2-jwt'))
     if (localStorage.getItem("prj2-jwt") == null) {
       // nav.cancel()
       if (nav.to?.route.id != "/login" && nav.to?.route.id != "/register") goto('/login')
