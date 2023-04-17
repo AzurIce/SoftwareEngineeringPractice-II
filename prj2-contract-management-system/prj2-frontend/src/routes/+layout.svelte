@@ -13,7 +13,7 @@
 </script>
 
 <div
-  class="absolute inset-0 flex flex-col h-full items-stretch overflow-hidden font-sans bg-[url(/img/bg.jpg)] bg-no-repeat bg-cover"
+  class="absolute inset-0 font-sans bg-[url(/img/bg.jpg)] bg-no-repeat bg-cover"
 >
   <slot />
 </div>
