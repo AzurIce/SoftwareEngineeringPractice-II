@@ -1,4 +1,4 @@
-import 'virtual:uno.css'
+import 'virtual:uno.css';
 
 export const prerender = true;
 export const ssr = false;
