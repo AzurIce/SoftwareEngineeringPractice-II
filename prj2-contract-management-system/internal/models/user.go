@@ -26,7 +26,7 @@ func (user *User) CheckPassword(password string) error {
 	log.Printf("盐: %s", salt)
 
 	if user.Password != utils.EncodePassword(password, salt) {
-        return errors.New("Password incorrect")
+        return errors.New("password incorrect")
     }
     return nil
 }

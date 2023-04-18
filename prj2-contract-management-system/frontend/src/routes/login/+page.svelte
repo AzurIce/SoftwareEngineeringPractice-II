@@ -2,10 +2,28 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
+	import Textfield from '@smui/textfield';
+	import HelperText from '@smui/textfield/helper-text';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
+	import { fade } from 'svelte/transition';
+	import { flip } from 'svelte/animate';
+
+	let loginBtnWidth = tweened(60, {
+		duration: 400,
+		easing: cubicOut
+	});
+	let loginTab = true;
+	$: $loginBtnWidth = loginTab ? 60 : 40;
+
 	let username = '';
 	let password = '';
+	let confirmPassword = '';
 
-	import { login } from '../../lib/api/user';
+	import { login, register } from '../../lib/api/user';
+	import Button, { Group } from '@smui/button';
+
+	function clickedRegister() {}
 
 	function onLoggedIn(data: any) {
 		localStorage.setItem('prj2-jwt', data.token);
@@ -36,6 +54,42 @@
 			});
 		console.log(username, password);
 	}
+
+	function onRegistered() {
+		// errMessage = '';
+		// okMessage = '注册成功';
+		// goto('/login')
+		// this.$store.commit("setToken", data.token);
+		// this.$store.commit("setLogin");
+		// this.$store.commit("setUser", data.user);
+		// localStorage.setItem("ACHToken", data.token);
+		// this.$router.push("/");
+	}
+	function onRegister() {
+		if (username == '') {
+			// errMessage = '用户名不能为空';
+			return;
+		}
+		if (password != confirmPassword) {
+			// errMessage = '密码不一致';
+			return;
+		}
+		register(username, password)
+			.then((res) => {
+				console.log(res);
+				onRegistered();
+			})
+			.catch((err) => {
+				console.log(err);
+				if (err.code && err.message) {
+					// errMessage = err.code + ': ' + err.message;
+				} else {
+					err = err.response.data;
+					// errMessage = err.error;
+				}
+			});
+		console.log(username, password);
+	}
 </script>
 
 <div
@@ -50,7 +104,7 @@
 "
 >
 	<div
-		class="flex flex-col space-y-2 p-8 items-center
+		class="flex flex-col gap-3 p-8 items-center
     w-auto
     sm:w-400px
     h-fit
@@ -62,51 +116,56 @@
   "
 	>
 		<!-- 登录 -->
-		<p class="m-0 mb-3 text-2xl mr-1 flex-1">登录</p>
-		<div class="space-y-2 w-full">
-			<div class="flex flex-col items-strech gap-2">
-				<!-- 用户名 -->
-				<div class="flex flex-col items-strech">
-					<label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-						>Username</label
-					>
-					<input
-						type="text"
-						id="username"
-						bind:value={username}
-						class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg
-            focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-						required
-					/>
-				</div>
-				<!-- 密码 -->
-				<div class="mb-6 flex flex-col items-strech">
-					<label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-						>Password</label
-					>
-					<input
-						type="password"
-						id="password"
-						class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-						bind:value={password}
-						required
-					/>
-				</div>
-			</div>
+		<span class="mb-3 text-2xl">
+			{#if loginTab}登录{:else}注册账号{/if}
+		</span>
+		<div class="w-full flex flex-col items-strech gap-4">
+			<Textfield variant="outlined" bind:value={username} label="用户名" />
+			<Textfield variant="outlined" bind:value={password} label="密码" />
+			{#if !loginTab}
+				<Textfield variant="outlined" bind:value={confirmPassword} label="确认密码" />
+			{/if}
 		</div>
-		<div class="flex">
-			<a href="/register">立即注册</a>
-		</div>
-		<button
-			type="button"
-			class="w-full text-white bg-blue-700 border-0
-      hover:cursor-pointer hover:bg-blue-800
-      focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5
-      dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-			on:click={onLogin}
-		>
-			登录
-		</button>
+		<Group style="width: 100%; display: flex; justify-content: stretch;">
+			<Button
+				variant="raised"
+				style="width: {$loginBtnWidth}%;"
+				ripple={loginTab}
+				on:click={() => {
+					if (loginTab) {
+						onLogin();
+					} else {
+						loginTab = true;
+					}
+				}}
+			>
+				{#if !loginTab}
+					<div class="i-ri:arrow-left-line" />
+					已有账号？
+				{:else}
+					登录
+				{/if}
+			</Button>
+			<Button
+				variant="outlined"
+				style="width: {100 - $loginBtnWidth}%;"
+				ripple={!loginTab}
+				on:click={() => {
+					if (!loginTab) {
+						onRegister();
+					} else {
+						loginTab = false;
+					}
+				}}
+			>
+				{#if !loginTab}
+					注册
+				{:else}
+					没有账号？
+					<div class="i-ri:arrow-right-line" />
+				{/if}
+			</Button>
+		</Group>
 		<!-- <button
       type="button"
       class="w-full text-white bg-gray-700 border-0
@@ -119,3 +178,9 @@
     </button> -->
 	</div>
 </div>
+
+<style>
+	* :global(.rounded-full) {
+		border-radius: 100%;
+	}
+</style>
