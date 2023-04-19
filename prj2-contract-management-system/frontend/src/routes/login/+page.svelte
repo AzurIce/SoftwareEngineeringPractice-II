@@ -17,7 +17,7 @@
 			type,
 			msg
 		});
-    snackbarList = snackbarList;
+		snackbarList = snackbarList;
 	}
 
 	import { goto } from '$app/navigation';
@@ -39,55 +39,49 @@
 
 	import { login, register } from '../../lib/api/user';
 	import Button, { Group } from '@smui/button';
+	import { user } from '../../lib/store';
 
 	function onLoggedIn(data: any) {
+		console.log('[onLoggedIn]: ', data);
+		user.set(data.user);
 		localStorage.setItem('prj2-jwt', data.token);
 		goto('/');
-		// this.$store.commit("setToken", data.token);
-		// this.$store.commit("setLogin");
-		// this.$store.commit("setUser", data.user);
-		// localStorage.setItem("ACHToken", data.token);
-		// this.$router.push("/");
 	}
 	function onLogin() {
 		if (username == '') {
-        createSnackBar("failed", "用户名不能为空"); 
+			createSnackBar('failed', '用户名不能为空');
 			return;
 		}
 		login(username, password)
 			.then((res) => {
-				console.log("[login/then]: " + res);
+				console.log('[login/then]: ' + res);
 				res = res.data;
 				onLoggedIn(res.data);
 			})
 			.catch((err) => {
-				console.log("[login/catch]: " + err);
-        createSnackBar("failed", "登陆失败 " + err);
-				// err = err.response.data;
-				// TODO: toast
-				// console.log(err.error);
+				console.log('[login/catch]: ' + err);
+				createSnackBar('failed', '登陆失败 ' + err);
 			});
 		console.log(username, password);
 	}
 
 	function onRegister() {
 		if (username == '') {
-        createSnackBar("failed", "用户名不能为空");
+			createSnackBar('failed', '用户名不能为空');
 			return;
 		}
 		if (password != confirmPassword) {
-        createSnackBar("failed", "密码不一致");
+			createSnackBar('failed', '密码不一致');
 			return;
 		}
 		register(username, password)
 			.then((res) => {
-				console.log("[register/then]: " + res);
-        createSnackBar("success", "注册成功");
-
+				console.log('[register/then]: ' + res);
+				createSnackBar('success', '注册成功');
 			})
 			.catch((err) => {
-				console.log("[register/catch]: " + err);
-        createSnackBar("failed", "注册失败");
+				console.log('[register/catch]: ' + err);
+				createSnackBar('failed', '注册失败');
 				if (err.code && err.message) {
 					// errMessage = err.code + ': ' + err.message;
 				} else {
@@ -122,7 +116,6 @@
   bg-opacity-20
 "
 >
-
 	<div
 		class="flex flex-col gap-3 p-8 items-center
     w-auto
