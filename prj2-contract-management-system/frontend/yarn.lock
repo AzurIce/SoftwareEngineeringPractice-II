@@ -340,6 +340,23 @@
     "@material/feature-targeting" "^14.0.0"
     "@material/rtl" "^14.0.0"
 
+"@material/icon-button@^14.0.0":
+  version "14.0.0"
+  resolved "https://repo.huaweicloud.com/repository/npm/@material/icon-button/-/icon-button-14.0.0.tgz#cdfc7e7b967abe81d537fd7db916c9113c3a09b7"
+  integrity sha512-wHMqzm7Q/UwbWLoWv32Li1r2iVYxadIrwTNxT0+p+7NdfI3lEwMN3NoB0CvoJnHTljjXDzce0KJ3nZloa0P0gA==
+  dependencies:
+    "@material/base" "^14.0.0"
+    "@material/density" "^14.0.0"
+    "@material/dom" "^14.0.0"
+    "@material/elevation" "^14.0.0"
+    "@material/feature-targeting" "^14.0.0"
+    "@material/focus-ring" "^14.0.0"
+    "@material/ripple" "^14.0.0"
+    "@material/rtl" "^14.0.0"
+    "@material/theme" "^14.0.0"
+    "@material/touch-target" "^14.0.0"
+    tslib "^2.1.0"
+
 "@material/line-ripple@^14.0.0":
   version "14.0.0"
   resolved "https://registry.yarnpkg.com/@material/line-ripple/-/line-ripple-14.0.0.tgz#460e972dd99d119b97d3ee4b7a73bc1d199abfad"
@@ -439,6 +456,25 @@
     "@material/feature-targeting" "^14.0.0"
     "@material/rtl" "^14.0.0"
     "@material/theme" "^14.0.0"
+    tslib "^2.1.0"
+
+"@material/snackbar@^14.0.0":
+  version "14.0.0"
+  resolved "https://repo.huaweicloud.com/repository/npm/@material/snackbar/-/snackbar-14.0.0.tgz#eebea965d2090d27e290c3a1497d9fcd89ddc968"
+  integrity sha512-28uQBj9bw7BalNarK9j8/aVW4Ys5aRaGHoWH+CeYvAjqQUJkrYoqM52aiKhBwqrjBPMJHk1aXthe3YbzMBm6vA==
+  dependencies:
+    "@material/animation" "^14.0.0"
+    "@material/base" "^14.0.0"
+    "@material/button" "^14.0.0"
+    "@material/dom" "^14.0.0"
+    "@material/elevation" "^14.0.0"
+    "@material/feature-targeting" "^14.0.0"
+    "@material/icon-button" "^14.0.0"
+    "@material/ripple" "^14.0.0"
+    "@material/rtl" "^14.0.0"
+    "@material/shape" "^14.0.0"
+    "@material/theme" "^14.0.0"
+    "@material/typography" "^14.0.0"
     tslib "^2.1.0"
 
 "@material/textfield@^14.0.0":
@@ -563,6 +599,17 @@
     "@smui/common" "^7.0.0-beta.3"
     svelte2tsx "^0.6.10"
 
+"@smui/icon-button@^7.0.0-beta.3":
+  version "7.0.0-beta.3"
+  resolved "https://repo.huaweicloud.com/repository/npm/@smui/icon-button/-/icon-button-7.0.0-beta.3.tgz#a995ef64c31270630a9af7f5b1edd1ef978698f4"
+  integrity sha512-EerVXfssP/lwkoTSUvVGCj/FUblUnzHE2yJxHYUVdhHWo4n/w0IBBL9mFXCjj/kOOOg37X+o0jplu0rs+pQDYA==
+  dependencies:
+    "@material/density" "^14.0.0"
+    "@material/icon-button" "^14.0.0"
+    "@smui/common" "^7.0.0-beta.3"
+    "@smui/ripple" "^7.0.0-beta.3"
+    svelte2tsx "^0.6.10"
+
 "@smui/line-ripple@^7.0.0-beta.3":
   version "7.0.0-beta.3"
   resolved "https://registry.yarnpkg.com/@smui/line-ripple/-/line-ripple-7.0.0-beta.3.tgz#7949b370f1877e3e834a9179c209f1b22dbfc7a3"
@@ -624,6 +671,20 @@
     "@material/dom" "^14.0.0"
     "@material/ripple" "^14.0.0"
     "@smui/common" "^7.0.0-beta.3"
+    svelte2tsx "^0.6.10"
+
+"@smui/snackbar@^7.0.0-beta.3":
+  version "7.0.0-beta.3"
+  resolved "https://repo.huaweicloud.com/repository/npm/@smui/snackbar/-/snackbar-7.0.0-beta.3.tgz#be527b80345949434742378b252de29dbe841cb4"
+  integrity sha512-luXaqVNa96hqq93TgiNUSzh/uLds02E2ZBNVL2c7ziWGytJeKFZgOOIBKXbODsTTlGMQ3Y1fZLQWIwpQBWPvZQ==
+  dependencies:
+    "@material/dom" "^14.0.0"
+    "@material/feature-targeting" "^14.0.0"
+    "@material/snackbar" "^14.0.0"
+    "@smui/button" "^7.0.0-beta.3"
+    "@smui/common" "^7.0.0-beta.3"
+    "@smui/icon-button" "^7.0.0-beta.3"
+    "@smui/ripple" "^7.0.0-beta.3"
     svelte2tsx "^0.6.10"
 
 "@smui/textfield@^7.0.0-beta.3":

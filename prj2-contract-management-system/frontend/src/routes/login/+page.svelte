@@ -1,13 +1,30 @@
-<!-- TODO: combine the login and register page -->
 <script lang="ts">
+	import Snackbar from '../../components/Snackbar.svelte';
+
+	let snackbarList: { type: string; msg: string }[] = [
+		// {
+		// 	type: 'success',
+		// 	msg: 'nbb'
+		// },
+		// {
+		// 	type: 'failed',
+		// 	msg: 'sbb'
+		// }
+	];
+
+	function createSnackBar(type: string, msg: string) {
+		snackbarList.push({
+			type,
+			msg
+		});
+    snackbarList = snackbarList;
+	}
+
 	import { goto } from '$app/navigation';
 
 	import Textfield from '@smui/textfield';
-	import HelperText from '@smui/textfield/helper-text';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { fade } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
 
 	let loginBtnWidth = tweened(60, {
 		duration: 400,
@@ -23,8 +40,6 @@
 	import { login, register } from '../../lib/api/user';
 	import Button, { Group } from '@smui/button';
 
-	function clickedRegister() {}
-
 	function onLoggedIn(data: any) {
 		localStorage.setItem('prj2-jwt', data.token);
 		goto('/');
@@ -36,51 +51,43 @@
 	}
 	function onLogin() {
 		if (username == '') {
-			// TODO: 用户名不能为空
+        createSnackBar("failed", "用户名不能为空"); 
 			return;
 		}
-		// TODO: 检查密码
 		login(username, password)
 			.then((res) => {
-				console.log(res);
+				console.log("[login/then]: " + res);
 				res = res.data;
 				onLoggedIn(res.data);
 			})
 			.catch((err) => {
-				console.log(err);
-				err = err.response.data;
+				console.log("[login/catch]: " + err);
+        createSnackBar("failed", "登陆失败 " + err);
+				// err = err.response.data;
 				// TODO: toast
-				console.log(err.error);
+				// console.log(err.error);
 			});
 		console.log(username, password);
 	}
 
-	function onRegistered() {
-		// errMessage = '';
-		// okMessage = '注册成功';
-		// goto('/login')
-		// this.$store.commit("setToken", data.token);
-		// this.$store.commit("setLogin");
-		// this.$store.commit("setUser", data.user);
-		// localStorage.setItem("ACHToken", data.token);
-		// this.$router.push("/");
-	}
 	function onRegister() {
 		if (username == '') {
-			// errMessage = '用户名不能为空';
+        createSnackBar("failed", "用户名不能为空");
 			return;
 		}
 		if (password != confirmPassword) {
-			// errMessage = '密码不一致';
+        createSnackBar("failed", "密码不一致");
 			return;
 		}
 		register(username, password)
 			.then((res) => {
-				console.log(res);
-				onRegistered();
+				console.log("[register/then]: " + res);
+        createSnackBar("success", "注册成功");
+
 			})
 			.catch((err) => {
-				console.log(err);
+				console.log("[register/catch]: " + err);
+        createSnackBar("failed", "注册失败");
 				if (err.code && err.message) {
 					// errMessage = err.code + ': ' + err.message;
 				} else {
@@ -88,9 +95,21 @@
 					// errMessage = err.error;
 				}
 			});
-		console.log(username, password);
+		// console.log(username, password);
 	}
 </script>
+
+<div class="absolute top-4 right-4 flex flex-col gap-2">
+	{#each snackbarList as snackbar}
+		<Snackbar
+			type={snackbar.type}
+			msg={snackbar.msg}
+			on:dismiss={() => {
+				snackbarList = snackbarList.filter((el) => el != snackbar);
+			}}
+		/>
+	{/each}
+</div>
 
 <div
 	class="
@@ -103,6 +122,7 @@
   bg-opacity-20
 "
 >
+
 	<div
 		class="flex flex-col gap-3 p-8 items-center
     w-auto
