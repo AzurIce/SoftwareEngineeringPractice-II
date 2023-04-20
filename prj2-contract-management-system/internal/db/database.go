@@ -293,7 +293,7 @@ func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
 func (db *DBHelper) Query(dest interface{}, conds ...interface{}) error {
 	// log.Println("[db/Query]: ")
 	modelType := reflect.Indirect(reflect.ValueOf(dest)).Type().Elem()
-	fmt.Println(modelType)
+	// fmt.Println(modelType)
 
 	tableName := GetTableName(modelType)
 	var rows *sql.Rows

@@ -7,70 +7,29 @@
 	}
 
 	let count = 0;
-
 	function handleClick() {
 		count += 1;
 	}
 
-	// import { user } from '../../lib/store';
-	// console.log($user);
 	import CourseList from '../../components/CourseList.svelte';
 
 	import { onMount } from 'svelte';
 	import { courseList, createdCourseList, joinedCourseList } from '$lib/store';
-	import { getCourses, getCreatedCourses, getJoinedCourses } from '$lib/api/course';
 	import EditCourseDialog from '../../components/EditCourseDialog.svelte';
 	import type { Course } from '$lib/models';
 	import SnackbarList from '../../components/SnackbarList.svelte';
+	import { updateCourseList } from '$lib/store';
 	onMount(() => {
 		console.log('[onMount]: Updating courseList');
 		updateCourseList();
 	});
 
-	function updateCourseList() {
-		getCourses()
-			.then((res) => {
-				res = res.data;
-				console.log('[updateCourseList(/)/getCourses]: success ', res);
-				$courseList = res.data || [];
-			})
-			.catch((err) => {
-				console.log('[updateCourseList(/)/getCourses]: failed ', err);
-			});
-		getJoinedCourses()
-			.then((res) => {
-				res = res.data;
-				console.log('[updateCourseList(/)/getJoinedCourses]: success ', res);
-				$joinedCourseList = res.data || [];
-			})
-			.catch((err) => {
-				console.log('[updateCourseList(/)/getJoinedCourses]: failed ', err);
-			});
-		getCreatedCourses()
-			.then((res) => {
-				res = res.data;
-				console.log('[updateCourseList(/)/getCreatedCourses]: success ', res);
-				$createdCourseList = res.data || [];
-			})
-			.catch((err) => {
-				console.log('[updateCourseList(/)/getCreatedCourses]: failed ', err);
-			});
-	}
-
-	function getCourse(id: number): Course {
-		for (let i = 0; i < $courseList.length; i++) {
-			if ($courseList[i].id == id) {
-				return $courseList[i];
-			}
-		}
-		return { id: -1, name: '', description: '', is_private: false } as Course;
-	}
 
 	let course: Course | undefined;
 	function onEditCourse(event: any) {
 		console.log('[onEditCourse]: ', event);
 		let editId = event.detail as number;
-		course = getCourse(editId);
+		course = $courseList.find((course) => course.id == editId)
 	}
 	
     let messages: { type: string, msg: string }[] = [];
@@ -112,6 +71,7 @@
 </button>
 
 <button on:click={exit}> 退出 </button>
+
 
 <div class="flex justify-around gap-2">
 	<div class="bg-white flex-1 flex flex-col items-center rounded shadow-sm p-2">
