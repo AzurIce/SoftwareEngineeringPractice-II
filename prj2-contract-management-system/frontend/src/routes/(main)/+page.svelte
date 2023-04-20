@@ -14,11 +14,11 @@
 
 	import { user } from '../../lib/store';
 	console.log($user);
+	import CourseList from '../../components/CourseList.svelte';
 
 	import { onMount } from 'svelte';
     import { courseList, createdCourseList, joinedCourseList } from '$lib/store';
 	import { getCourses, getCreatedCourses, getJoinedCourses } from '$lib/api/course';
-	import CourseList from '../../components/CourseList.svelte';
 	onMount(() => {
         console.log('[onMount]: Updating courseList');
 		updateCourseList();
@@ -28,29 +28,29 @@
 		getCourses()
 			.then((res) => {
                 res = res.data;
-				console.log(res);
-                $courseList = res.data;
+				console.log("[updateCourseList(/)/getCourses]: success ", res);
+                $courseList = res.data || [];
 			})
 			.catch((err) => {
-				console.log(err);
+				console.log("[updateCourseList(/)/getCourses]: failed ", err);
 			});
         getJoinedCourses()
 			.then((res) => {
                 res = res.data;
-				console.log(res);
-                $joinedCourseList = res.data;
+				console.log("[updateCourseList(/)/getJoinedCourses]: success ", res);
+                $joinedCourseList = res.data || [];
 			})
 			.catch((err) => {
-				console.log(err);
+				console.log("[updateCourseList(/)/getJoinedCourses]: failed ", err);
 			});
         getCreatedCourses()
 			.then((res) => {
                 res = res.data;
-				console.log(res);
-                $createdCourseList = res.data;
+				console.log("[updateCourseList(/)/getCreatedCourses]: success ", res);
+                $createdCourseList = res.data || [];
 			})
 			.catch((err) => {
-				console.log(err);
+				console.log("[updateCourseList(/)/getCreatedCourses]: failed ", err);
 			});
 	}
 
@@ -77,11 +77,11 @@
 	<div class="bg-white flex-1 flex flex-col items-center rounded shadow-sm p-2">
 		<span class="p-2">加入的课程</span>
 		<hr class="w-full" />
-        <CourseList courseList={$joinedCourseList} />
+        <CourseList courses={$joinedCourseList} />
 	</div>
 	<div class="bg-white flex-1 flex flex-col items-center rounded shadow-sm p-2">
 		<span class="p-2">创建的课程</span>
 		<hr class="w-full" />
-        <CourseList courseList={$createdCourseList} />
+        <CourseList courses={$createdCourseList} />
 	</div>
 </div>

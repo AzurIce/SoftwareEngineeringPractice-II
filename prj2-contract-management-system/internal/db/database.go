@@ -318,10 +318,12 @@ func (db *DBHelper) Query(dest interface{}, conds ...interface{}) error {
 		)
 	}
 	if err != nil {
+        log.Printf("[Query]: err: %v", err)
 		return err
 	}
 
 	res := reflect.New(reflect.SliceOf(modelType))
+    log.Println(res.Elem().Interface())
 	for rows.Next() {
 		// Create slice element
 		destElem := reflect.New(modelType)
@@ -337,6 +339,7 @@ func (db *DBHelper) Query(dest interface{}, conds ...interface{}) error {
 
 		res.Elem().Set(reflect.Append(res.Elem(), reflect.Indirect(destElem)))
 	}
+    log.Println(res.Elem().Interface())
 	reflect.ValueOf(dest).Elem().Set(res.Elem())
 
 	return nil

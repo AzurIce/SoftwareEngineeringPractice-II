@@ -55,12 +55,12 @@ type GetJoinedCoursesService struct {}
 
 func (s *GetJoinedCoursesService) Handle(c *gin.Context) (any, error) {
     courses := &[]models.Course{}
-	err := bootstrap.DB.Query(courses, "id in SELECT course_id FROM user_courses WHERE user_id = $1", c.GetInt("id"))
+	err := bootstrap.DB.Query(courses, "id IN (SELECT course_id FROM user_courses WHERE user_id = $1)", c.GetInt("id"))
 	if err != nil {
-		log.Printf("[GetCoursesService]: Error %v\n", err)
+		log.Printf("[GetJoinedCoursesService]: Error %v\n", err)
 		return nil, err
 	}
-	log.Printf("[GetCoursesService]: Success %v\n", courses)
+	log.Printf("[GetJoinedCoursesService]: Success %v\n", courses)
 
 	return courses, nil
 }
@@ -71,11 +71,31 @@ func (s *GetCreatedCoursesService) Handle(c *gin.Context) (any, error) {
     courses := &[]models.Course{}
 	err := bootstrap.DB.Query(courses, "creater_id = $1", c.GetInt("id"))
 	if err != nil {
-		log.Printf("[GetCoursesService]: Error %v\n", err)
+		log.Printf("[GetCreatedCoursesService]: Error %v\n", err)
 		return nil, err
 	}
-	log.Printf("[GetCoursesService]: Success %v\n", courses)
+	log.Printf("[GetCreatedCoursesService]: Success %v\n", courses)
 
 	return courses, nil
+}
+
+type JoinCourseService struct {
+    CourseID int `form:"course_id"`
+}
+
+func (s *JoinCourseService) Handle(c *gin.Context) (any, error) {
+    log.Println(s.CourseID, c.GetInt("id"))
+    userCourse := &models.UserCourse{
+        CourseID: s.CourseID,
+        UserID: c.GetInt("id"),
+    }
+	res, err := bootstrap.DB.Insert(userCourse)
+	if err != nil {
+		log.Printf("[JoinCoursesService]: Error %v\n", err)
+		return nil, err
+	}
+	log.Printf("[JoinCoursesService]: Success %v\n", res)
+
+	return nil, nil
 }
 

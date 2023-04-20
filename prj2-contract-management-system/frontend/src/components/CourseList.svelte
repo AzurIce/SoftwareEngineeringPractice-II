@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { Course } from '../lib/models';
 	import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
-    import Chip, { Set, Text } from '@smui/chips';
     import Button from '@smui/button';
-	// import LinearProgress from "@smui/linear-progress"
+	import { joinedCourseList } from '$lib/store';
+	import { joinCourse } from '$lib/api/course';
 
-	export let courseList: Course[] = [
+	export let courses: Course[] = [
 		{
 			id: 999,
 			creater_id: 9999,
@@ -25,12 +25,60 @@
 	];
 
     function cut(str: string): string {
-        if (str.length > 50) {
-            return str.substr(0, 49) + '...';
+        if (str.length > 20) {
+            return str.substr(0, 19) + '...';
         } else {
             return str;
         }
     }
+
+    function onJoinCourse(id: number) {
+        joinCourse(id).then((res) => {
+            updateCourseList()
+            console.log("[CourseList]: success ", res)
+        }).catch((err) => {
+            console.log("[CourseList]: failed", err)
+        })
+    }
+
+    function isJoined(id: number) {
+        for (let i = 0; i < $joinedCourseList.length; i++) {
+            if ($joinedCourseList[i].id == id) return true;
+        }
+        return false;
+    }
+
+    import { courseList, createdCourseList } from '$lib/store';
+	import { getCourses, getCreatedCourses, getJoinedCourses } from '$lib/api/course';
+	function updateCourseList() {
+		getCourses()
+			.then((res) => {
+                res = res.data;
+				console.log("[updateCourseList(/)/getCourses]: success ", res);
+                $courseList = res.data || [];
+			})
+			.catch((err) => {
+				console.log("[updateCourseList(/)/getCourses]: failed ", err);
+			});
+        getJoinedCourses()
+			.then((res) => {
+                res = res.data;
+				console.log("[updateCourseList(/)/getJoinedCourses]: success ", res);
+                $joinedCourseList = res.data || [];
+			})
+			.catch((err) => {
+				console.log("[updateCourseList(/)/getJoinedCourses]: failed ", err);
+			});
+        getCreatedCourses()
+			.then((res) => {
+                res = res.data;
+				console.log("[updateCourseList(/)/getCreatedCourses]: success ", res);
+                $createdCourseList = res.data || [];
+			})
+			.catch((err) => {
+				console.log("[updateCourseList(/)/getCreatedCourses]: failed ", err);
+			});
+	}
 </script>
 
 <div>
@@ -45,7 +93,7 @@
 			</Row>
 		</Head>
 		<Body>
-			{#each courseList as course}
+			{#each courses as course}
 				<Row>
 					<Cell numeric>{course.id}</Cell>
 					<Cell>{course.creater_id}</Cell>
@@ -58,7 +106,13 @@
 					<Cell>
                         {cut(course.description)}
                     </Cell>
-					<Cell><Button>Join</Button></Cell>
+					<Cell>
+                        {#if !isJoined(course.id)}
+                            <Button on:click={() => { onJoinCourse(course.id) }}>Join</Button>
+                        {:else}
+                            <Button disabled>Joined</Button>
+                        {/if}
+                    </Cell>
 				</Row>
 			{/each}
 		</Body>

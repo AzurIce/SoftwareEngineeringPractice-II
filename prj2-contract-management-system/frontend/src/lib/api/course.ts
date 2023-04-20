@@ -1,5 +1,13 @@
 import { get, postByJson } from './utils/axios';
 
+export function exitCourse(id: number): Promise<any> {
+    return postByJson('/api/course/exit', {courseId: id});
+}
+
+export function joinCourse(id: number): Promise<any> {
+    return postByJson('/api/course/join', {courseId: id});
+}
+
 export function getCourses(): Promise<any> {
 	return get('/api/course');
 }

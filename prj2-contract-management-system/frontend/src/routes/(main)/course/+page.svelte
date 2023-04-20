@@ -11,6 +11,7 @@
     import { courseList, createdCourseList, joinedCourseList } from '$lib/store';
 	import { getCourses, getCreatedCourses, getJoinedCourses } from '$lib/api/course';
 	onMount(() => {
+        console.log('[onMount]: Updating courseList');
 		updateCourseList();
 	});
 
@@ -18,29 +19,29 @@
 		getCourses()
 			.then((res) => {
                 res = res.data;
-				console.log(res);
-                $courseList = res.data;
+				console.log("[updateCourseList(/)/getCourses]: success ", res);
+                $courseList = res.data || [];
 			})
 			.catch((err) => {
-				console.log(err);
+				console.log("[updateCourseList(/)/getCourses]: failed ", err);
 			});
         getJoinedCourses()
 			.then((res) => {
                 res = res.data;
-				console.log(res);
-                $joinedCourseList = res.data;
+				console.log("[updateCourseList(/)/getJoinedCourses]: success ", res);
+                $joinedCourseList = res.data || [];
 			})
 			.catch((err) => {
-				console.log(err);
+				console.log("[updateCourseList(/)/getJoinedCourses]: failed ", err);
 			});
         getCreatedCourses()
 			.then((res) => {
                 res = res.data;
-				console.log(res);
-                $createdCourseList = res.data;
+				console.log("[updateCourseList(/)/getCreatedCourses]: success ", res);
+                $createdCourseList = res.data || [];
 			})
 			.catch((err) => {
-				console.log(err);
+				console.log("[updateCourseList(/)/getCreatedCourses]: failed ", err);
 			});
 	}
 
@@ -73,6 +74,6 @@
 		</Button>
 	</Content>
 </Paper>
-<CourseList bind:courseList={$courseList}/>
+<CourseList bind:courses={$courseList}/>
 
 <SnackbarList />

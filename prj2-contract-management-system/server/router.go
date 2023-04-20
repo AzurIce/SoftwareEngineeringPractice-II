@@ -42,6 +42,7 @@ func InitRouter() *gin.Engine {
                 course.GET("", service.Handler(&service.GetCoursesService{}))
                 course.GET("joined", service.Handler(&service.GetJoinedCoursesService{}))
                 course.GET("created", service.Handler(&service.GetCreatedCoursesService{}))
+                course.POST("join", service.Handler(&service.JoinCourseService{}))
             }
         }
     }
