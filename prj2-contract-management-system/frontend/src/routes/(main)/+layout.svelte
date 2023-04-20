@@ -74,7 +74,7 @@
 					}}
 				>
 					<div class="m-1 flex flex-col items-strech min-w-max">
-						<Button on:click={() => surface.setOpen(false)}>Submit</Button>
+						<!-- <Button on:click={() => surface.setOpen(false)}>Submit</Button> -->
 						<Button
 							on:click={() => {
 								localStorage.removeItem('prj2-jwt');
@@ -90,7 +90,7 @@
 		<!-- <div class="bg-blue h-800">
 
 		</div> -->
-		<div class="flex-1 m-4 rounded-xl p-4 bg-white bg-opacity-70">
+		<div class="flex-1 m-4 rounded-xl p-4 bg-white bg-opacity-70 flex flex-col gap-4">
 			<slot />
 		</div>
 	</div>

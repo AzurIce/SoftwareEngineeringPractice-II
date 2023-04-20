@@ -12,7 +12,7 @@
 		count += 1;
 	}
 
-	import { user } from '../../../lib/store';
+	import { user } from '../../lib/store';
 	console.log($user);
 </script>
 
@@ -35,11 +35,11 @@
 
 <div class="flex justify-around gap-2">
 	<div class="bg-white flex-1 flex flex-col items-center rounded shadow-sm p-2">
-		<h3>加入的课程</h3>
+		<span class="p-2">加入的课程</span>
 		<hr class="w-full" />
 	</div>
 	<div class="bg-white flex-1 flex flex-col items-center rounded shadow-sm p-2">
-		<h3>创建的课程</h3>
+		<span class="p-2">创建的课程</span>
 		<hr class="w-full" />
 	</div>
 </div>

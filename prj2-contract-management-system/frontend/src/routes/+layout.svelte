@@ -4,10 +4,10 @@
 	let theme = 'light';
 
 	afterNavigate((nav) => {
-		if (nav.to?.route.id == '/') goto('/home');
-		// If not logged in, goto login page
-		if (import.meta.env.DEV) return;
 		console.log(nav);
+		if (import.meta.env.DEV) return;
+
+		// If not logged in, goto login page
 		console.log(localStorage.getItem('prj2-jwt'));
 		if (localStorage.getItem('prj2-jwt') == null) {
 			if (nav.to?.route.id != '/login' && nav.to?.route.id != '/register') goto('/login');
