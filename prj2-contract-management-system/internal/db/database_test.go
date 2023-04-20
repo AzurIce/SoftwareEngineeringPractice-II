@@ -135,3 +135,39 @@ func TestPlayground(t *testing.T) {
 	//     t.Error(err)
 	// }
 }
+
+
+func TestSlicePointerReflect(t *testing.T) {
+	// destElem := reflect.Indirect(reflect.ValueOf(&[]models.User{})).Type().Elem()
+	slice := &[]models.User{}
+	// destElem := reflect.Indirect(reflect.ValueOf(slice)).Interface()
+	destType := reflect.Indirect(reflect.ValueOf(slice)).Type().Elem()
+
+
+	dest := reflect.New(destType)
+	reflect.Indirect(dest).Field(0).Set(reflect.ValueOf(999))
+	fmt.Println(dest.Interface())
+
+
+	destFields := []interface{}{}
+	for i := 0; i < destType.NumField(); i++ {
+		destFields = append(destFields, reflect.New(destType.Field(i).Type).Addr().Interface())
+	}
+
+	res := reflect.Append(reflect.Indirect(reflect.ValueOf(slice)), reflect.Indirect(dest))
+
+	fmt.Println(res.Interface())
+
+	// fmt.Println(destElem)
+}
+
+func TestQuery(t *testing.T) {
+	slice := &[]models.User{}
+
+	db := MustOpenDB()
+	err := db.Query(slice)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("result: ", slice)
+}
