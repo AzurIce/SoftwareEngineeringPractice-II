@@ -78,6 +78,7 @@
 						<Button
 							on:click={() => {
 								localStorage.removeItem('prj2-jwt');
+								localStorage.removeItem('prj2-id');
 								goto('/login');
 							}}
 						>

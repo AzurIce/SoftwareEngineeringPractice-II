@@ -170,3 +170,13 @@ func TestQuery(t *testing.T) {
 	}
 	fmt.Println("result: ", slice)
 }
+
+func TestDelete(t *testing.T) {
+	
+	db := MustOpenDB()
+	res, err := db.Delete(&models.User{}, 1)
+	if err != nil {
+		fmt.Println(err)
+	}
+	log.Println(res)
+}

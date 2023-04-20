@@ -7,6 +7,29 @@ import axios from 'axios';
  */
 
 // const headerJSON = { "Content-Type": "application/json" }
+//
+export function putByJson(url: string, data: object) {
+	if (import.meta.env.DEV) {
+		url = 'http://localhost:8888' + url;
+	}
+	return new Promise((resolve, reject) => {
+		console.log('putByJson: ', JSON.stringify(data));
+		axios
+			.put(url, JSON.stringify(data), {
+				headers: {
+					Authorization: 'Bearer ' + localStorage.getItem('prj2-jwt'),
+					'Content-Type': 'application/json'
+				}
+			})
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				reject(err);
+			});
+	});
+}
+
 
 export function postByJson(url: string, data: object) {
 	if (import.meta.env.DEV) {

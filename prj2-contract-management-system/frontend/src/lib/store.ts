@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import type { Course } from './models';
 
-export const user = writable({} as { username: string; usergroup: number });
+// export const user = writable({} as { id: number, username: string; usergroup: number });
 
 export const courseList = writable([] as Course[]);
 

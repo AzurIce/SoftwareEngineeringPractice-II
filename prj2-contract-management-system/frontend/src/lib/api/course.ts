@@ -1,4 +1,8 @@
-import { get, postByJson } from './utils/axios';
+import { get, postByJson, putByJson } from './utils/axios';
+
+export function updateCourse(id: number, name: string, description: string, isPrivate: boolean): Promise<any> {
+    return putByJson('/api/course', {courseId: id, name, description, isPrivate});
+}
 
 export function exitCourse(id: number): Promise<any> {
     return postByJson('/api/course/exit', {courseId: id});

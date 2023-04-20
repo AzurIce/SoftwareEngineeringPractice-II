@@ -3,26 +3,9 @@
 	import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
     import Button from '@smui/button';
 	import { joinedCourseList } from '$lib/store';
-	import { joinCourse } from '$lib/api/course';
+	import { exitCourse, joinCourse, updateCourse } from '$lib/api/course';
 
-	export let courses: Course[] = [
-		{
-			id: 999,
-			creater_id: 9999,
-			name: 'courseName',
-			description:
-				'courseDescriptionnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
-            is_private: false
-		},
-		{
-			id: 998,
-			creater_id: 9999,
-			name: 'courseName',
-			description:
-				'courseDescriptionnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
-            is_private: false
-		}
-	];
+	export let courses: Course[] = [];
 
     function cut(str: string): string {
         if (str.length > 20) {
@@ -35,9 +18,18 @@
     function onJoinCourse(id: number) {
         joinCourse(id).then((res) => {
             updateCourseList()
-            console.log("[CourseList]: success ", res)
+            console.log("[CourseList/onJoinCourse]: success ", res)
         }).catch((err) => {
-            console.log("[CourseList]: failed", err)
+            console.log("[CourseList/onJoinCourse]: failed", err)
+        })
+    }
+
+    function onExitCourse(id: number) {
+        exitCourse(id).then((res) => {
+            updateCourseList()
+            console.log("[CourseList/onExitCourse]: success ", res)
+        }).catch((err) => {
+            console.log("[CourseList/onExitCourse]: failed", err)
         })
     }
 
@@ -48,6 +40,8 @@
         return false;
     }
 
+	import { createEventDispatcher } from 'svelte';
+    const dispatch = createEventDispatcher();
     import { courseList, createdCourseList } from '$lib/store';
 	import { getCourses, getCreatedCourses, getJoinedCourses } from '$lib/api/course';
 	function updateCourseList() {
@@ -110,7 +104,10 @@
                         {#if !isJoined(course.id)}
                             <Button on:click={() => { onJoinCourse(course.id) }}>Join</Button>
                         {:else}
-                            <Button disabled>Joined</Button>
+                            <Button on:click={() => { onExitCourse(course.id) }} style="color: #bbbbbb">Joined</Button>
+                        {/if}
+                        {#if course.creater_id == (localStorage.getItem('prj2-id') || -1)}
+                            <Button on:click={() => { dispatch('edit', course.id) }}>Edit</Button>
                         {/if}
                     </Cell>
 				</Row>

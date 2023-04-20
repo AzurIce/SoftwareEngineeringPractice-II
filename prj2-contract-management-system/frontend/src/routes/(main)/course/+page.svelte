@@ -9,7 +9,9 @@
 
 	import { onMount } from 'svelte';
     import { courseList, createdCourseList, joinedCourseList } from '$lib/store';
-	import { getCourses, getCreatedCourses, getJoinedCourses } from '$lib/api/course';
+	import { getCourses, getCreatedCourses, getJoinedCourses, updateCourse } from '$lib/api/course';
+	import EditCourseDialog from '../../../components/EditCourseDialog.svelte';
+	import type { Course } from '$lib/models';
 	onMount(() => {
         console.log('[onMount]: Updating courseList');
 		updateCourseList();
@@ -45,6 +47,22 @@
 			});
 	}
 
+	function getCourse(id: number): Course {
+		for (let i = 0; i < $courseList.length; i++) {
+			if ($courseList[i].id == id) {
+				return $courseList[i];
+			}
+		}
+		return { id: -1, name: '', description: '', is_private: false } as Course;
+	}
+	
+	let course: Course | undefined;
+	function onEditCourse(event: any) {
+		console.log('[onEditCourse]: ', event);
+		let editId = event.detail as number;
+		course = getCourse(editId);
+	}
+
     let messages: { type: string, msg: string }[] = [];
     function joinMessage(type: string, msg: any) {
         messages.push({type, msg: msg as string});
@@ -53,12 +71,28 @@
 
 </script>
 
-<CreateCourseDialog bind:open on:success={(msg) => {
-    joinMessage('success', msg)
+<CreateCourseDialog bind:open on:success={(event) => {
+    joinMessage('success',  event.detail);
     updateCourseList();
-}} on:failed={(msg) => {
-    joinMessage('failed', msg)
+}} on:failed={(event) => {
+    joinMessage('failed',  event.detail);
 }}/>
+
+{#if course !== undefined}
+	<EditCourseDialog
+		bind:course
+		on:onDismiss={() => {
+			course = undefined;
+		}}
+		on:success={(event) => {
+			joinMessage('success', event.detail);
+			updateCourseList();
+		}}
+		on:failed={(event) => {
+			joinMessage('failed', event.detail);
+		}}
+	/>
+{/if}
 
 <Paper>
 	<Title>Courses</Title>
@@ -74,6 +108,6 @@
 		</Button>
 	</Content>
 </Paper>
-<CourseList bind:courses={$courseList}/>
+<CourseList courses={$courseList} on:edit={onEditCourse}/>
 
-<SnackbarList />
+<SnackbarList bind:messages/>

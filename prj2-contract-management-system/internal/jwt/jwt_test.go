@@ -41,11 +41,11 @@ func TestJwtPlayground(t *testing.T) {
         return signedString, nil
     })
 
-    if claims, ok := parsedToken.Claims.(*MyCustomClaims); ok && parsedToken.Valid {
-        fmt.Printf("%v %v\n", claims.userID, claims.userGroup)
-    } else {
-        fmt.Println(err)
-    }
+    // if claims, ok := parsedToken.Claims.(*MyCustomClaims); ok && parsedToken.Valid {
+    //     fmt.Printf("%v %v\n", claims.userID, claims.userGroup)
+    // } else {
+    //     fmt.Println(err)
+    // }
 
 	// t.Claims = &MyCustomClaims{
 	// 	uuid,

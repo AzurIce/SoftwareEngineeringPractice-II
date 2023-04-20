@@ -155,6 +155,9 @@ func (db *DBHelper) Update(value interface{}, primaryKey int, cols ...string) (s
 			if field.Tag.Get("sqlType") == "serial" {
 				continue
 			}
+			if strings.Contains(field.Tag.Get("sql"), "REFERENCES") {
+				continue;
+			}
 			cols = append(cols, utils.ToSnakeCase(field.Name))
 		}
 	}
@@ -206,7 +209,7 @@ func (db *DBHelper)Delete(dest interface{}, conds ...interface{}) (sql.Result, e
 	tableName := GetTableName(destType)
 	if len(conds) == 0 {
 		result, err = db.DB.Exec(
-			fmt.Sprintf("DELETE * FROM %v", tableName),
+			fmt.Sprintf("DELETE FROM %v", tableName),
 		)
 	} else if len(conds) == 1 {
 		switch reflect.TypeOf(conds[0]).Kind() {
@@ -288,7 +291,7 @@ func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
 
 // dest is the pointer of a empty slice
 func (db *DBHelper) Query(dest interface{}, conds ...interface{}) error {
-	log.Println("[db/Query]: ")
+	// log.Println("[db/Query]: ")
 	modelType := reflect.Indirect(reflect.ValueOf(dest)).Type().Elem()
 	fmt.Println(modelType)
 
@@ -323,7 +326,7 @@ func (db *DBHelper) Query(dest interface{}, conds ...interface{}) error {
 	}
 
 	res := reflect.New(reflect.SliceOf(modelType))
-    log.Println(res.Elem().Interface())
+    // log.Println(res.Elem().Interface())
 	for rows.Next() {
 		// Create slice element
 		destElem := reflect.New(modelType)
@@ -339,7 +342,7 @@ func (db *DBHelper) Query(dest interface{}, conds ...interface{}) error {
 
 		res.Elem().Set(reflect.Append(res.Elem(), reflect.Indirect(destElem)))
 	}
-    log.Println(res.Elem().Interface())
+    // log.Println(res.Elem().Interface())
 	reflect.ValueOf(dest).Elem().Set(res.Elem())
 
 	return nil

@@ -15,8 +15,6 @@ type RegisterService struct {
 }
 
 func (s *RegisterService) Handle(c *gin.Context) (any, error) {
-    // TODO: Register
-
     if err := bootstrap.DB.First(&models.User{}, "username LIKE $1", s.Username); err == nil {
         // Already exists
         log.Printf("[Register]: User %v already exists.\n", s.Username)
