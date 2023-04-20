@@ -32,14 +32,16 @@ func InitRouter() *gin.Engine {
             user.POST("register", service.Handler(&service.RegisterService{}))
         }
 
-        // auth := api.Group("")
-        // TODO: JWTAuth
-        // api.use(middlewares.JWTAuth())
+        auth := api.Group("")
+        auth.Use(middlewares.JWTAuth())
         {
             // TODO: apis
-            // api.Group("contract")
+            course := auth.Group("course")
             {
-
+                course.POST("", service.Handler(&service.CreateCourseService{}))
+                course.GET("", service.Handler(&service.GetCoursesService{}))
+                course.GET("joined", service.Handler(&service.GetJoinedCoursesService{}))
+                course.GET("created", service.Handler(&service.GetCreatedCoursesService{}))
             }
         }
     }

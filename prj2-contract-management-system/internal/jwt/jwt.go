@@ -14,16 +14,16 @@ import (
 var signedString = []byte("prj2")
 
 type MyCustomClaims struct {
-    userID    int
-	userGroup int
+    UserID    int
+	UserGroup int
 	jwt.RegisteredClaims
 }
 
 func CreateToken(userID int, userGroup int) (string, error) {
 	return jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), MyCustomClaims{
-		userID,
+        userID,
         userGroup,
-		jwt.RegisteredClaims{
+        jwt.RegisteredClaims{
 			// ExpiresAt: time.Now().Add(time.Minute * 1).Unix(),
 		},
 	}).SignedString(signedString)
@@ -53,12 +53,21 @@ func DecodeTokenStr(tokenStr string) (*jwt.Token, error) {
 }
 
 func MustGetClaims(c *gin.Context) *MyCustomClaims {
-	log.Println("[MustGetClaims]")
+    log.Println("[MustGetClaims]: Getting token string...")
 	tokenStr := GetTokenStr(c)
-	log.Printf("[MustGetClaims] tokenStr: %s\n", tokenStr)
+    log.Printf("[MustGetClaims]: tokenStr: %s\n", tokenStr)
+    log.Println("[MustGetClaims]: decoding...")
 	token, err := DecodeTokenStr(tokenStr)
     if err != nil {
         c.Abort()
     }
+    log.Println("[MustGetClaims]: done")
+    if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
+        log.Println(claims)
+	// fmt.Printf("%v %v", claims.Foo, claims.RegisteredClaims.Issuer)
+    } else {
+        log.Println(err)
+    }
+
 	return token.Claims.(*MyCustomClaims)
 }

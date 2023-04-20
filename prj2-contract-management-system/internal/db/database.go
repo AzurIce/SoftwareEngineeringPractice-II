@@ -144,6 +144,92 @@ func (db *DBHelper) Insert(value interface{}, cols ...string) (sql.Result, error
 	return res, err
 }
 
+func (db *DBHelper) Update(value interface{}, primaryKey int, cols ...string) (sql.Result, error) {
+	modelType := GetModelType(value)
+	modelValue := GetModelValue(value)
+
+	// If no cols provided, make it contains all fields
+	if len(cols) == 0 {
+		for i := 0; i < modelType.NumField(); i++ {
+			field := modelType.Field(i)
+			if field.Tag.Get("sqlType") == "serial" {
+				continue
+			}
+			cols = append(cols, utils.ToSnakeCase(field.Name))
+		}
+	}
+	valuesPlaceholder := []string{}
+	values := []any{}
+	for i := 0; i < modelType.NumField(); i++ {
+		// check if the field is in cols
+		flag := false
+		for _, col := range cols {
+			if utils.ToSnakeCase(modelType.Field(i).Name) == utils.ToSnakeCase(col) {
+				flag = true
+				break
+			}
+		}
+
+		if flag {
+			fieldValue := modelValue.Field(i)
+
+			valuesPlaceholder = append(valuesPlaceholder, fmt.Sprintf("%v = $%v", utils.ToSnakeCase(modelType.Field(i).Name), len(values)+1))
+			values = append(values, fieldValue.Interface())
+		}
+	}
+	fmt.Printf("Insert cols: %v\n", cols)
+	fmt.Printf("Insert values: %v\n", values)
+
+	tableName := GetTableName(modelType)
+	// colDefs := strings.Join(cols, ", ")
+	valueDefs := strings.Join(valuesPlaceholder, ", ")
+
+	stmt := fmt.Sprintf("UPDATE %v SET %v WHERE id = %v", tableName, valueDefs, primaryKey)
+	log.Printf("[Insert] Executing: %v\n", stmt)
+
+	res, err := db.DB.Exec(
+		stmt,
+		values...,
+	)
+
+	return res, err
+}
+
+func (db *DBHelper)Delete(dest interface{}, conds ...interface{}) (sql.Result, error){
+	// log.Println("[db/First]")
+	destType := GetModelType(dest)
+	// destValue := GetModelValue(dest)
+
+	// modelType := utils.GetModelType(dest)
+    var result sql.Result
+    var err error
+	tableName := GetTableName(destType)
+	if len(conds) == 0 {
+		result, err = db.DB.Exec(
+			fmt.Sprintf("DELETE * FROM %v", tableName),
+		)
+	} else if len(conds) == 1 {
+		switch reflect.TypeOf(conds[0]).Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			result, err = db.DB.Exec(
+				fmt.Sprintf("DELETE FROM %v WHERE id = $1", tableName), conds[0],
+			)
+		case reflect.String:
+			result, err = db.DB.Exec(
+				fmt.Sprintf("SELECT FROM %v WHERE %v", tableName, conds[0]),
+			)
+		}
+	} else {
+		result, err = db.DB.Exec(
+			fmt.Sprintf("SELECT FROM %v WHERE %v", tableName, conds[0]), conds[1:]...,
+		)
+	}
+	if err != nil {
+		return nil, err
+	}
+    return result, err
+}
+
 // First
 // dest: the pointer to a struct
 // conds:
@@ -154,11 +240,9 @@ func (db *DBHelper) Insert(value interface{}, cols ...string) (sql.Result, error
 //	  conds[0]: query: query str
 //	  conds[1:]: args: query args
 func (db *DBHelper) First(dest interface{}, conds ...interface{}) error {
-	log.Println("[db/First]: ")
+	// log.Println("[db/First]")
 	destType := GetModelType(dest)
 	destValue := GetModelValue(dest)
-
-	fmt.Println(destValue, destType)
 
 	// modelType := utils.GetModelType(dest)
 	tableName := GetTableName(destType)

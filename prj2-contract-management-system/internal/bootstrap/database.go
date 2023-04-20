@@ -15,10 +15,8 @@ func init() {
 
 func initTables() {
     log.Println("Initializing tables...")
-    if !DB.HasTable(&models.User{}) {
-        err := DB.CreateTable(&models.User{})
-        if err != nil {
-            log.Panicf("Failed to create table: %v\n", err)
-        }
+    err := DB.CreateTablesIfNotExist(&models.User{}, &models.Course{}, &models.UserCourse{})
+    if err != nil {
+        log.Panicf("Failed to create tables: %v\n", err)
     }
 }

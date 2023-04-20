@@ -148,11 +148,10 @@ func TestSlicePointerReflect(t *testing.T) {
 	reflect.Indirect(dest).Field(0).Set(reflect.ValueOf(999))
 	fmt.Println(dest.Interface())
 
-
-	destFields := []interface{}{}
-	for i := 0; i < destType.NumField(); i++ {
-		destFields = append(destFields, reflect.New(destType.Field(i).Type).Addr().Interface())
-	}
+	// destFields := []interface{}{}
+	// for i := 0; i < destType.NumField(); i++ {
+	// 	destFields = append(destFields, reflect.New(destType.Field(i).Type).Addr().Interface())
+	// }
 
 	res := reflect.Append(reflect.Indirect(reflect.ValueOf(slice)), reflect.Indirect(dest))
 

@@ -2,7 +2,6 @@
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
-	import { onMount } from 'svelte';
 
 	export let type = 'success';
 	export let msg = 'test';

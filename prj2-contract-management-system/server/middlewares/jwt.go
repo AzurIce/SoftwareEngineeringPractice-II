@@ -1,7 +1,8 @@
 package middlewares
 
 import (
-    "prj2/internal/jwt"
+	"log"
+	"prj2/internal/jwt"
 
 	"github.com/gin-gonic/gin"
 	// "github.com/golang-jwt/jwt/v5"
@@ -9,7 +10,10 @@ import (
 
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-        jwt.MustGetClaims(c)
+        claims := jwt.MustGetClaims(c)
+        log.Printf("[middlewares/JWTAuth]: claim: %v\n", claims)
+        c.Set("id", claims.UserID)
+        c.Set("group", claims.UserGroup)
 		// tokenStr := jwt.GetTokenStr(c)
 		// log.Println("[middlewares/JWTAuth]: Token: ", tokenStr)
 

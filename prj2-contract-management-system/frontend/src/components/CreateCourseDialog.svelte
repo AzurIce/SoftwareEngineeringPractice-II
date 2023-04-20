@@ -3,8 +3,9 @@
 	import FormField from '@smui/form-field';
 	import Switch from '@smui/switch';
 	import Textfield from '@smui/textfield';
-	import Dialog, { Header, Title, Content, Actions } from '@smui/dialog';
+	import Dialog, { Header, Title, Content } from '@smui/dialog';
 	import { createEventDispatcher } from 'svelte';
+	import { createCourse } from '$lib/api/course';
 	const dispatch = createEventDispatcher();
 
 	export let open: boolean;
@@ -12,6 +13,28 @@
 	let name = '';
 	let description = '';
 	let isPrivate = true;
+
+	function onCreateCourse() {
+        if (name.length == 0) {
+            dispatch('failed', "名称不能为空")
+            return;
+        }
+        if (description.length == 0) {
+            dispatch('failed', "介绍不能为空")
+            return;
+        }
+        console.log("[CreateCourseDialog.svelte/onCreateCourse]: Creating...")
+		createCourse(name, description, isPrivate)
+			.then((res) => {
+				console.log('[CreateCourse]: success: ', res);
+                dispatch('success', '课程创建成功')
+                open = false;
+			})
+			.catch((err) => {
+				console.log('[CreateCourse]: error: ', err);
+                dispatch('failed', '课程创建' + err)
+			});
+	}
 </script>
 
 <Dialog
@@ -41,26 +64,11 @@
 		<div class="flex gap-2">
 			<div class="flex-1" />
 			<Button
-				on:click={() => {
-					dispatch('cancel');
-					open = false;
-				}}
+				on:click={() => { open = false; }}
 			>
 				<Label>取消</Label>
 			</Button>
-			<Button
-				on:click={() => {
-					if (name.length == 0) {
-						// TODO: name cannot be empty
-						return;
-					}
-					if (description.length == 0) {
-						// TODO: name cannot be empty
-						return;
-					}
-					dispatch('submit');
-				}}
-			>
+			<Button on:click={onCreateCourse}>
 				<Label>创建</Label>
 			</Button>
 		</div>

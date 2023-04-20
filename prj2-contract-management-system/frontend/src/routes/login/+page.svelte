@@ -1,25 +1,18 @@
 <script lang="ts">
-	import Snackbar from '../../components/Snackbar.svelte';
+    // Snackbar
+	import SnackbarList from '../../components/SnackbarList.svelte';
 
-	let snackbarList: { type: string; msg: string }[] = [
-		// {
-		// 	type: 'success',
-		// 	msg: 'nbb'
-		// },
-		// {
-		// 	type: 'failed',
-		// 	msg: 'sbb'
-		// }
-	];
+	let messages: { type: string; msg: string }[] = [];
 
 	function createSnackBar(type: string, msg: string) {
-		snackbarList.push({
+		messages.push({
 			type,
-			msg
+			msg,
 		});
-		snackbarList = snackbarList;
+		messages = messages;
 	}
 
+    // ------
 	import { goto } from '$app/navigation';
 
 	import Textfield from '@smui/textfield';
@@ -93,17 +86,7 @@
 	}
 </script>
 
-<div class="absolute top-4 right-4 flex flex-col gap-2">
-	{#each snackbarList as snackbar}
-		<Snackbar
-			type={snackbar.type}
-			msg={snackbar.msg}
-			on:dismiss={() => {
-				snackbarList = snackbarList.filter((el) => el != snackbar);
-			}}
-		/>
-	{/each}
-</div>
+<SnackbarList bind:messages={messages}/>
 
 <div
 	class="
@@ -179,16 +162,6 @@
 				{/if}
 			</Button>
 		</Group>
-		<!-- <button
-      type="button"
-      class="w-full text-white bg-gray-700 border-0
-      hover:cursor-pointer hover:bg-gray-800
-      focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5
-      dark:bg-blue-600 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-blue-800"
-      on:click={onLogin}
-    >
-      注册
-    </button> -->
 	</div>
 </div>
 

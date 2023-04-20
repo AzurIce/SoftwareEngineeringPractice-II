@@ -35,9 +35,9 @@
 	<div class="flex flex-col min-h-full items-strech">
 		<nav class="sticky top-0 h-2rem bg-white shadow flex items-center p-3 gap-4">
 			<Button
-				on:click={() => goto('/home')}
+				on:click={() => goto('/')}
 				ripple={false}
-				color={activeUrl == '/home' ? 'primary' : 'secondary'}>Home</Button
+				color={activeUrl == '/' ? 'primary' : 'secondary'}>Home</Button
 			>
 			<Button
 				on:click={() => goto('/course')}

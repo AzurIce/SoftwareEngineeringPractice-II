@@ -14,6 +14,46 @@
 
 	import { user } from '../../lib/store';
 	console.log($user);
+
+	import { onMount } from 'svelte';
+    import { courseList, createdCourseList, joinedCourseList } from '$lib/store';
+	import { getCourses, getCreatedCourses, getJoinedCourses } from '$lib/api/course';
+	import CourseList from '../../components/CourseList.svelte';
+	onMount(() => {
+        console.log('[onMount]: Updating courseList');
+		updateCourseList();
+	});
+
+	function updateCourseList() {
+		getCourses()
+			.then((res) => {
+                res = res.data;
+				console.log(res);
+                $courseList = res.data;
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+        getJoinedCourses()
+			.then((res) => {
+                res = res.data;
+				console.log(res);
+                $joinedCourseList = res.data;
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+        getCreatedCourses()
+			.then((res) => {
+                res = res.data;
+				console.log(res);
+                $createdCourseList = res.data;
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	}
+
 </script>
 
 <h1>Welcome, {$user.username}</h1>
@@ -37,9 +77,11 @@
 	<div class="bg-white flex-1 flex flex-col items-center rounded shadow-sm p-2">
 		<span class="p-2">加入的课程</span>
 		<hr class="w-full" />
+        <CourseList courseList={$joinedCourseList} />
 	</div>
 	<div class="bg-white flex-1 flex flex-col items-center rounded shadow-sm p-2">
 		<span class="p-2">创建的课程</span>
 		<hr class="w-full" />
+        <CourseList courseList={$createdCourseList} />
 	</div>
 </div>

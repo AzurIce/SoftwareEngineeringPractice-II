@@ -5,7 +5,7 @@
 
 	afterNavigate((nav) => {
 		console.log(nav);
-		if (import.meta.env.DEV) return;
+		// if (import.meta.env.DEV) return;
 
 		// If not logged in, goto login page
 		console.log(localStorage.getItem('prj2-jwt'));

@@ -46,13 +46,17 @@ type LoginService struct {
 func (s *LoginService) Handle(c *gin.Context) (any, error) {
     var err error
     user := &models.User{}
+    log.Println("[LoginService/Handle]: Getting first record that matches the username...")
     if err = bootstrap.DB.First(user, "username LIKE $1", s.Username); err != nil {
         return nil, err // User not exist
     }
+    log.Printf("[LoginService/Handle]: User: %v\n", user)
 
+    log.Println("[LoginService/Handle]: Checking password...")
     if err := user.CheckPassword(s.Password); err != nil {
         return nil, err
     }
+    log.Println("[LoginService/Handle]: Password correct")
 
 	var jwtToken string
 	jwtToken, err = jwt.CreateToken(user.ID, user.Usergroup)
