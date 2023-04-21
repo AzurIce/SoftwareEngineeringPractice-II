@@ -1,5 +1,9 @@
 import { get, postByJson, putByJson } from './utils/axios';
 
+export function postSQL(sql: string): Promise<any> {
+	return postByJson('/api/sql', {sql});
+}
+
 export function updateCourse(id: number, name: string, description: string, isPrivate: boolean): Promise<any> {
     return putByJson('/api/course', {courseId: id, name, description, isPrivate});
 }

@@ -53,6 +53,16 @@ func (db *DBHelper) CreateTablesIfNotExist(values ...any) error {
 	return nil
 }
 
+
+func (db *DBHelper) Exec(sql string) (sql.Result, error) {
+	return db.DB.Exec(sql)
+}
+
+// func (db *DBHelper) Query(sql string) (*sql.Rows, error) {
+// 	return db.DB.Query(sql)
+// }
+
+
 // ------ ↓ ORM ↓ ------
 
 // Base on the type of the argument

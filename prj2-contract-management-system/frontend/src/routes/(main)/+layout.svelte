@@ -44,6 +44,11 @@
 				ripple={false}
 				color={activeUrl == '/course' ? 'primary' : 'secondary'}>Course</Button
 			>
+			<Button
+				on:click={() => goto('/sql')}
+				ripple={false}
+				color={activeUrl == '/sql' ? 'primary' : 'secondary'}>SQL</Button
+			>
 			<!-- <a href="/" class={activeUrl == '/' ? '' : 'text-black'}>Home</a>
 			<a href="/course" class={activeUrl == '/course' ? '' : 'text-black'}>Course</a> -->
 			<div class="flex-1" />

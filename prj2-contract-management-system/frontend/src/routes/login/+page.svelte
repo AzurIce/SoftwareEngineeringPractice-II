@@ -118,9 +118,9 @@
 		</span>
 		<div class="w-full flex flex-col items-strech gap-4">
 			<Textfield variant="outlined" bind:value={username} label="用户名" />
-			<Textfield variant="outlined" bind:value={password} label="密码" />
+			<Textfield variant="outlined" bind:value={password} label="密码" type="password"/>
 			{#if !loginTab}
-				<Textfield variant="outlined" bind:value={confirmPassword} label="确认密码" />
+				<Textfield variant="outlined" bind:value={confirmPassword} label="确认密码" type="password"/>
 			{/if}
 		</div>
 		<Group style="width: 100%; display: flex; justify-content: stretch;">

@@ -19,23 +19,23 @@ func InitRouter() *gin.Engine {
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	r.Use(cors.New(config))
 
-    // TODO: static file middleware
+    // static file middleware
     r.Use(middlewares.Frontend(bootstrap.StaticFS))
     api := r.Group("api")
     {
         // No login required
         user := api.Group("user")
         {
-            // TODO: Login Service
+            // Login Service
             user.POST("login", service.Handler(&service.LoginService{}))
-            // TODO: Register Service
+            // Register Service
             user.POST("register", service.Handler(&service.RegisterService{}))
         }
 
         auth := api.Group("")
         auth.Use(middlewares.JWTAuth())
         {
-            // TODO: apis
+            // course
             course := auth.Group("course")
             {
                 course.POST("", service.Handler(&service.CreateCourseService{}))
@@ -46,6 +46,8 @@ func InitRouter() *gin.Engine {
                 course.POST("join", service.Handler(&service.JoinCourseService{}))
                 course.POST("exit", service.Handler(&service.ExitCourseService{}))
             }
+
+            auth.POST("sql", service.Handler(&service.SQLService{}))
         }
     }
 

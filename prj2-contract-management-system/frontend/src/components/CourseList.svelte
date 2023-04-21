@@ -44,37 +44,6 @@
 
 	import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
-    import { courseList, createdCourseList } from '$lib/store';
-	import { getCourses, getCreatedCourses, getJoinedCourses } from '$lib/api/course';
-	// function updateCourseList() {
-	// 	getCourses()
-	// 		.then((res) => {
-    //             res = res.data;
-	// 			console.log("[updateCourseList(/)/getCourses]: success ", res);
-    //             $courseList = res.data || [];
-	// 		})
-	// 		.catch((err) => {
-	// 			console.log("[updateCourseList(/)/getCourses]: failed ", err);
-	// 		});
-    //     getJoinedCourses()
-	// 		.then((res) => {
-    //             res = res.data;
-	// 			console.log("[updateCourseList(/)/getJoinedCourses]: success ", res);
-    //             $joinedCourseList = res.data || [];
-	// 		})
-	// 		.catch((err) => {
-	// 			console.log("[updateCourseList(/)/getJoinedCourses]: failed ", err);
-	// 		});
-    //     getCreatedCourses()
-	// 		.then((res) => {
-    //             res = res.data;
-	// 			console.log("[updateCourseList(/)/getCreatedCourses]: success ", res);
-    //             $createdCourseList = res.data || [];
-	// 		})
-	// 		.catch((err) => {
-	// 			console.log("[updateCourseList(/)/getCreatedCourses]: failed ", err);
-	// 		});
-	// }
 </script>
 
 <div>
