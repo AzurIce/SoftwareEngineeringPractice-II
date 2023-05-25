@@ -1,4 +1,4 @@
-CC = cc -g
+CC = g++ -g
 LEX = flex
 YACC = bison
 CFLAGS = -DYYDEBUG=1

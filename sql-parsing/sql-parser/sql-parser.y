@@ -1,4 +1,5 @@
 %{
+#include <vector>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -12,6 +13,7 @@ void emit(char *s, ...);
     double floatval;
     char *strval;
     int subtok;
+    // vector<double> values;
 }
 
 %token <strval>   STRING
@@ -34,12 +36,17 @@ void emit(char *s, ...);
 %precedence NEG
 
 %token SELECT
+
+// %type <intval> boolean_expr
+// %type <floatval> arithmetic_expr
+// %type <strval> string_expr
+// %type <values> value_expr_list
 %%
 
 select_stmt : SELECT value_expr_list ';' { emit("select statement"); }
 
 value_expr_list : value_expr
-                | value_expr ',' value_expr;
+                | value_expr_list ',' value_expr;
 
 value_expr : arithmetic_expr
            | string_expr
@@ -60,12 +67,12 @@ arithmetic_expr : arithmetic_expr '+' arithmetic_expr
 string_expr : STRING;
 
 boolean_expr : BOOLEAN
-             | arithmetic_expr CMP_LESS arithmetic_expr
+             | arithmetic_expr CMP_LESS arithmetic_expr   
              | arithmetic_expr CMP_GREATER arithmetic_expr
-             | arithmetic_expr CMP_EQ arithmetic_expr
-             | arithmetic_expr CMP_LEQ arithmetic_expr
-             | arithmetic_expr CMP_GEQ arithmetic_expr
-             | arithmetic_expr CMP_NEQ arithmetic_expr
+             | arithmetic_expr CMP_EQ arithmetic_expr     
+             | arithmetic_expr CMP_LEQ arithmetic_expr    
+             | arithmetic_expr CMP_GEQ arithmetic_expr    
+             | arithmetic_expr CMP_NEQ arithmetic_expr    
              ;
 
 boolean_expr : boolean_expr OR boolean_expr

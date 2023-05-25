@@ -77,14 +77,15 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 10 "sql-parser.y"
+#line 11 "sql-parser.y"
 
     int intval;
     double floatval;
     char *strval;
     int subtok;
+    // vector<double> values;
 
-#line 88 "sql-parser.tab.h"
+#line 89 "sql-parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

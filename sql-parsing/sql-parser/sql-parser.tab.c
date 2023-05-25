@@ -69,6 +69,7 @@
 /* First part of user prologue.  */
 #line 1 "sql-parser.y"
 
+#include <vector>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -76,7 +77,7 @@
 void yyerror(char *s, ...);
 void emit(char *s, ...);
 
-#line 80 "sql-parser.tab.c"
+#line 81 "sql-parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -525,9 +526,9 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    39,    39,    41,    42,    44,    45,    46,    48,    49,
-      51,    52,    53,    54,    55,    56,    57,    60,    62,    63,
-      64,    65,    66,    67,    68,    71,    72,    73,    74
+       0,    46,    46,    48,    49,    51,    52,    53,    55,    56,
+      58,    59,    60,    61,    62,    63,    64,    67,    69,    70,
+      71,    72,    73,    74,    75,    78,    79,    80,    81
 };
 #endif
 
@@ -573,11 +574,11 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 static const yytype_int8 yypact[] =
 {
      -18,    36,     6,   -19,   -19,   -19,   -19,    30,    39,    30,
-     -10,    -8,    78,   -19,     5,   -19,    78,   -19,    39,   -11,
+     -10,   -19,    78,   -19,     5,   -19,    78,   -19,    39,    -9,
       58,   -12,   -19,    36,    39,    39,    39,    39,    39,    39,
       39,    39,    39,    39,    39,    30,    30,    82,   -19,   -19,
-     -19,    93,    93,    93,    93,    93,    93,   -14,   -14,   -11,
-     -11,    93,     7,   -19
+     -19,    93,    93,    93,    93,    93,    93,   -14,   -14,    -9,
+      -9,    93,     7,   -19
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -611,7 +612,7 @@ static const yytype_int8 yydefgoto[] =
 static const yytype_int8 yytable[] =
 {
       12,    35,    36,     1,    32,    33,    15,    19,    20,    17,
-      34,    21,    22,    34,    39,    23,    40,    37,    35,    36,
+      34,    21,    22,    23,    39,    34,    40,    37,    35,    36,
        0,    36,    12,    41,    42,    43,    44,    45,    46,    47,
       48,    49,    50,    51,     4,     5,     6,    52,    53,     3,
        4,     5,     6,     4,     5,     7,     0,     8,     0,     0,
@@ -627,7 +628,7 @@ static const yytype_int8 yytable[] =
 static const yytype_int8 yycheck[] =
 {
        1,    13,    14,    21,    18,    19,     0,     8,     9,     7,
-      24,     9,    22,    24,    26,    23,    23,    18,    13,    14,
+      24,     9,    22,    23,    26,    24,    23,    18,    13,    14,
       -1,    14,    23,    24,    25,    26,    27,    28,    29,    30,
       31,    32,    33,    34,     4,     5,     6,    35,    36,     3,
        4,     5,     6,     4,     5,    15,    -1,    17,    -1,    -1,
@@ -1129,13 +1130,13 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* select_stmt: SELECT value_expr_list ';'  */
-#line 39 "sql-parser.y"
+#line 46 "sql-parser.y"
                                          { emit("select statement"); }
-#line 1135 "sql-parser.tab.c"
+#line 1136 "sql-parser.tab.c"
     break;
 
 
-#line 1139 "sql-parser.tab.c"
+#line 1140 "sql-parser.tab.c"
 
       default: break;
     }
@@ -1328,7 +1329,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 77 "sql-parser.y"
+#line 84 "sql-parser.y"
 
 void emit(char *s, ...) {
   extern int yylineno;
