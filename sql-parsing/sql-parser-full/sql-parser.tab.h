@@ -298,7 +298,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "sql-parser.y"
+#line 15 "sql-parser.y"
 
         int intval;
         double floatval;

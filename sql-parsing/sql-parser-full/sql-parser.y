@@ -3,6 +3,7 @@
  * $Header: /usr/home/johnl/flnb/RCS/ch04.tr,v 1.7 2009/05/19 18:28:27 johnl Exp $
  */
 %{
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -316,6 +317,7 @@ expr: expr '+' expr { emit("ADD"); }
    | NOT expr { emit("NOT"); }
    | '!' expr { emit("NOT"); }
    | expr COMPARISON expr { emit("CMP %d", $2); }
+   | '(' expr ')';
 
 /* recursive selects and comparisons thereto */
    | expr COMPARISON '(' select_stmt ')' { emit("CMPSELECT %d", $2); }
@@ -490,6 +492,7 @@ select_opts:                          { $$ = 0; }
 select_expr_list: select_expr { $$ = 1; }
     | select_expr_list ',' select_expr {$$ = $1 + 1; }
     | '*' { emit("SELECTALL"); $$ = 1; }
+    | '(' select_expr_list ')' { $$ = $2; }
     ;
 
 select_expr: expr opt_as_alias ;
@@ -934,7 +937,7 @@ main(int ac, char **av)
   extern FILE *yyin;
 
   if(ac > 1 && !strcmp(av[1], "-d")) {
-    yydebug = 1; ac--; av++;
+    /*yydebug = 1;*/ ac--; av++;
   }
 
   if(ac > 1 && (yyin = fopen(av[1], "r")) == NULL) {

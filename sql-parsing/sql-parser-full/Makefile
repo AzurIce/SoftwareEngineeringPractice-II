@@ -4,7 +4,18 @@ LEX = flex
 YACC = bison
 CFLAGS = -DYYDEBUG=1
 
+all2: flex bison final
 all: sql-parser
+
+flex: sql-parser.l
+	${LEX} -o sql-parser.c $<
+
+bison: sql-parser.y
+	${YACC} -vd sql-parser.y
+
+final:
+	${CC} -o sql-parser sql-parser.tab.c sql-parser.c
+
 
 sql-parser: sql-parser.tab.o sql-parser.o
 	${CC} -o $@ sql-parser.tab.o sql-parser.o

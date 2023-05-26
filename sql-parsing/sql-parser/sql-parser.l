@@ -1,10 +1,11 @@
-%option noyywrap nodefault yylineno case-insensitive
+%option noyywrap nodefault yylineno case-insensitive c++
 
 %{
 #include "sql-parser.tab.h"
 #include "string.h"
 #include "stdlib.h"
 
+extern int yylex();
 void yyerror(char *s, ...);
 int old_state;
 
@@ -13,31 +14,15 @@ int old_state;
 %s COMMENT
 
 %%
-
+    /* 忽略空白字符 */
+[ \t\n]+
     /* numbers */
--?[0-9]+            { return INTEGER; }
+-?[0-9]+            { $$ = atoi(yytext); return NUMBER; }
 
--?[0-9]+"."[0-9]* |
--?"."[0-9]+         { return FLOAT; }
-
-    /* strings */
-'(\\.|''|[^'\n])*'  { return STRING; }
-
-    /* booleans */
-TRUE                { return BOOLEAN; }
-FALSE               { return BOOLEAN; }
+-?[0-9]*"."[0-9]+     { $$ = atof(yytext); return NUMBER; }
 
     /* operators */
-[-+*/%,;]            { return yytext[0]; }
-
-    /* comparators */
-"<"  { yylval.subtok = 1; return CMP_LESS; }
-">"  { yylval.subtok = 2; return CMP_GREATER; }
-"="  { yylval.subtok = 4; return CMP_EQ; }
-"<=" { yylval.subtok = 5; return CMP_LEQ; }
-">=" { yylval.subtok = 6; return CMP_GEQ; }
-"!=" { yylval.subtok = 4; return CMP_NEQ; }
-"<>" { yylval.subtok = 3; return CMP_NEQ; }
+[-+*/%,;()]            { return yytext[0]; }
 
     /* comments */
 "--"[ \t].*      ;
@@ -46,11 +31,6 @@ FALSE               { return BOOLEAN; }
 <COMMENT>.|\n    ;
 <COMMENT><<EOF>> { yyerror("lexer: unclosed comment"); }
 
-
-    /* keywords */
-SELECT { return SELECT; }
-
     /* everything else */
-[ \t\n]          ;
-.                { yyerror("lexer: mystery character: '%c'", *yytext); }
+.                { yyerror("lexer: unknown character: '%c'", *yytext); }
 %%
