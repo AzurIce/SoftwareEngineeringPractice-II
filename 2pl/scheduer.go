@@ -1,7 +1,6 @@
 package main
 
 import (
-    "fmt"
     "log"
 )
 
@@ -40,7 +39,6 @@ func (s *Scheduer) finishTask(t *Task) {
 
     firstReqTask, _ := s.reqTable[t.Target].get(0)
     if firstReqTask.Type == WriteType {
-        fmt.Println("!!!!!! first is Write")
         s.reqTable[t.Target].Remove(firstReqTask)
         s.heldTable[t.Target].Add(firstReqTask)
         close(firstReqTask.StartChan)

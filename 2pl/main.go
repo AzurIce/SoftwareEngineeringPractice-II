@@ -26,7 +26,6 @@ func (t *Transaction) WaitToStart() {
     log.Println(cyan(fmt.Sprintf("Transaction %v growing phase📈", t.Id)))
 
     for _, task := range t.Tasks {
-        // fmt.Printf("Transaction requesting lock: %v", task)
         scheduer.reqChan <- task
         fmt.Printf("Transaction %v - Task %v - Target %v %s\n", t.Id, task.Id, task.Target, magenta("getting lock"))
         <- task.StartChan // Will block until it's closed
