@@ -78,8 +78,15 @@ func (t *Transaction) String() string {
 func RandTransaction(id int) *Transaction {
     tasks := []*Task{};
     taskNum := rand.Int() % MaxTask + 1;
-    for i := 1; i <= taskNum; i++ {
-        tasks = append(tasks, RandTask(i))
+    targets := rand.Perm(MaxTarget)[:taskNum]
+    for i := 0; i < taskNum; i++ {
+        tasks = append(tasks, &Task{
+            i,
+            targets[i],
+            RandLockType(),
+            time.Duration(rand.Int() % MaxTime + 1) * time.Second,
+            make(chan int),
+        })
     }
 
     return &Transaction{
