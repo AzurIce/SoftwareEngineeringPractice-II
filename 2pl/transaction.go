@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+    "log"
 )
 
 const (
@@ -17,8 +18,87 @@ const (
 type Transaction struct {
     Id        int
     Tasks     []*Task
-    StartChan chan int
+    DependTransactions []*Transaction
 }
+
+func (t *Transaction) AddDep(depTr *Transaction) {
+    for i, t := range t.DependTransactions {
+        if t == nil {
+            t.DependTransactions[i] = depTr
+            return
+        }
+    }
+    t.DependTransactions = append(t.DependTransactions, depTr)
+}
+
+func RemoveDep(depTr *Transaction) {
+    for _, t := range transactions {
+        for i, tt := range t.DependTransactions {
+            if tt == depTr {
+                t.DependTransactions[i] = nil
+                continue
+            }
+        }
+    }
+}
+
+func (t *Transaction) circle(first bool, targetTransaction *Transaction) bool {
+    if !first && t == targetTransaction {
+        return true
+    }
+    for _, dependTransaction := range t.DependTransactions {
+        if dependTransaction == nil {
+            continue
+        }
+        if dependTransaction.circle(false, targetTransaction) {
+            return true
+        }
+    }
+    return false
+}
+
+func (t *Transaction) restart() {
+    debug()
+    for _, task := range t.Tasks {
+        scheduer.cancelReqTask(task)
+        scheduer.cancelTask(task)
+    }
+    t.DependTransactions = make([]*Transaction, 0)
+    RemoveDep(t)
+    // time.Sleep(1 * time.Second)
+    debug()
+    t.WaitToStart()
+}
+
+func (t *Transaction) WaitToStart() {
+    <- startSignal // A Signal to start all Transactions
+    log.Println(cyan(fmt.Sprintf("Transaction %v growing phase📈", t.Id)))
+
+    for _, task := range t.Tasks {
+        scheduer.reqChan <- task
+        fmt.Printf("Transaction %v - Target %v %s\n", t.Id, task.Target, magenta("getting lock"))
+        res := <- task.ReqResChan // Will block until it's closed
+        if res != 1 {
+            fmt.Printf(fgRed("Transaction %v: Detected deadlock, restarting...\n", t.Id))
+            t.restart()
+            return
+        }
+        // fmt.Printf("Transaction %v - Target %v %s\n", t.Id, task.Target, magenta("geted lock"))
+    }
+
+    log.Println(cyan(fmt.Sprintf("Transaction %v shrinking phase📉", t.Id)))
+
+    for _, task := range t.Tasks {
+        fmt.Printf("Transaction %v - Target %v %s\n", t.Id, task.Target, bgYellow("start"))
+        time.Sleep(task.Time)
+        fmt.Printf("Transaction %v - Target %v %s\n", t.Id, task.Target, bgGreen("done"))
+        scheduer.doneChan <- task
+    }
+    log.Println(cyan(fmt.Sprintf("Transaction %v done ✅", t.Id)))
+    wg.Done()
+}
+
+// Utils
 
 func (t *Transaction) String() string {
     taskStrs := []string{}
@@ -36,6 +116,7 @@ func RandTransaction(id int) *Transaction {
     targets := rand.Perm(MaxTarget)[:taskNum]
     for i := 0; i < taskNum; i++ {
         tasks = append(tasks, &Task{
+            id,
             i,
             targets[i],
             RandLockType(),
@@ -47,7 +128,14 @@ func RandTransaction(id int) *Transaction {
     return &Transaction{
         id,
         tasks,
-        make(chan int),
+        make([]*Transaction, 0),
     }
 }
 
+func NewTransaction(id int, tasks []*Task) *Transaction {
+    return &Transaction{
+        id,
+        tasks,
+        make([]*Transaction, 0),
+    }
+}

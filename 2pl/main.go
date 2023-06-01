@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -11,7 +10,7 @@ import (
 )
 
 // for start signal
-var start chan int
+var startSignal chan int = make(chan int)
 var wg sync.WaitGroup
 
 var cyan = color.New(color.FgCyan).SprintFunc()
@@ -20,49 +19,55 @@ var bgYellow = color.New(color.FgYellow).SprintfFunc()
 var bgGreen = color.New(color.FgGreen).SprintfFunc()
 var bbgGreen = color.New(color.BgGreen, color.FgBlack).SprintfFunc()
 var magenta = color.New(color.FgMagenta).SprintfFunc()
-
-func (t *Transaction) WaitToStart() {
-    <- start // Will block until start channel is closed
-    log.Println(cyan(fmt.Sprintf("Transaction %v growing phase📈", t.Id)))
-
-    for _, task := range t.Tasks {
-        scheduer.reqChan <- task
-        fmt.Printf("Transaction %v - Task %v - Target %v %s\n", t.Id, task.Id, task.Target, magenta("getting lock"))
-        <- task.StartChan // Will block until it's closed
-        fmt.Printf("Transaction %v - Task %v - Target %v %s\n", t.Id, task.Id, task.Target, magenta("geted lock"))
-    }
-
-    log.Println(cyan(fmt.Sprintf("Transaction %v shrinking phase📉", t.Id)))
-
-    for _, task := range t.Tasks {
-        fmt.Printf("Transaction %v - Task %v - Target %v %s\n", t.Id, task.Id, task.Target, bgYellow("start"))
-        time.Sleep(task.Time)
-        fmt.Printf("Transaction %v - Task %v - Target %v %s\n", t.Id, task.Id, task.Target, bgGreen("done"))
-        scheduer.doneChan <- task
-    }
-    log.Println(cyan(fmt.Sprintf("Transaction %v done ✅", t.Id)))
-    wg.Done()
-}
-
-func init() {
-    start = make(chan int)
-}
+var fgRed = color.New(color.FgRed).SprintfFunc()
 
 var scheduer = NewScheduer()
+var transactions = []*Transaction{};
+
+func AddTransaction(t *Transaction) {
+    wg.Add(1)
+    transactions = append(transactions, t)
+    go t.WaitToStart()
+}
+
+func AddDeadlockTransaction() {
+    AddTransaction(NewTransaction(0, []*Task{
+        NewTask(0, 0, 1, WriteType, 3 * time.Second),
+        NewTask(0, 1, 2, WriteType, 3 * time.Second),
+    }))
+    AddTransaction(NewTransaction(1, []*Task{
+        NewTask(1, 0, 2, ReadType, 3 * time.Second),
+        NewTask(1, 1, 1, ReadType, 3 * time.Second),
+    }))
+}
 
 func main() {
     rand.Seed(0)
 
     fmt.Println(bgWhiteFgBlack("---------- Generating Transactions ----------"))
-    for i := 1; i <= 10; i++{
-        wg.Add(1)
+    // AddDeadlockTransaction()
+    for i := 0; i < 10; i++{
+        // wg.Add(1)
         genTransaction := RandTransaction(i)
-        go genTransaction.WaitToStart()
+        AddTransaction(genTransaction)
+        // go genTransaction.WaitToStart()
         fmt.Printf("Generated Transaction: %v\n", genTransaction)
     }
     fmt.Println(bgWhiteFgBlack("---------- Now starts ----------"))
-    close(start)
-    go scheduer.tick()
+    start()
     wg.Wait()
     fmt.Println(bbgGreen("---------- All done ----------"))
+}
+
+func start() {
+    close(startSignal)
+    go scheduer.tick()
+}
+
+
+func debug() {
+    fmt.Println("heldTable[1]: ", scheduer.heldTable[1])
+    fmt.Println("heldTable[2]: ", scheduer.heldTable[2])
+    fmt.Println("reqTable[1]: ", scheduer.reqTable[1])
+    fmt.Println("reqTable[2]: ", scheduer.reqTable[2])
 }

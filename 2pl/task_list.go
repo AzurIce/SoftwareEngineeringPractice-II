@@ -62,3 +62,12 @@ func (l *TaskList) HasWriteType() bool {
     }
     return false
 }
+
+func (l *TaskList) Has(targetTask *Task) bool {
+    for _, t := range l.tasks {
+        if t == targetTask {
+            return true
+        }
+    }
+    return false
+}
