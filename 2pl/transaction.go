@@ -8,7 +8,7 @@ import (
 )
 
 const (
-    MaxTarget = 64
+    MaxTarget = 10
     MaxTask = 3
     MaxTime = 3
 )
