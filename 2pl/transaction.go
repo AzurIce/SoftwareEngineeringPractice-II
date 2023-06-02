@@ -75,11 +75,11 @@ func (t *Transaction) WaitToStart() {
     log.Println(cyan(fmt.Sprintf("Transaction %v growing phase📈", t.Id)))
 
     for _, task := range t.Tasks {
+        fmt.Printf("[WaitToStart] Transaction %v - Target %v %s %v\n", t.Id, task.Target, magenta("getting lock"), task.Type)
         scheduer.reqChan <- task
-        fmt.Printf("Transaction %v - Target %v %s\n", t.Id, task.Target, magenta("getting lock"))
         res := <- task.ReqResChan // Will block until it's closed
         if res != 1 {
-            fmt.Printf(fgRed("Transaction %v: Detected deadlock, restarting...\n", t.Id))
+            fmt.Printf(fgRed("[WaitToStart] Transaction %v: Detected deadlock, restarting...\n", t.Id))
             t.restart()
             return
         }
@@ -89,13 +89,15 @@ func (t *Transaction) WaitToStart() {
     log.Println(cyan(fmt.Sprintf("Transaction %v shrinking phase📉", t.Id)))
 
     for _, task := range t.Tasks {
-        fmt.Printf("Transaction %v - Target %v %s\n", t.Id, task.Target, bgYellow("start"))
+        fmt.Printf("Transaction %v - Target %v %s %v\n", t.Id, task.Target, bgYellow("start"), task.Type)
         time.Sleep(task.Time)
-        fmt.Printf("Transaction %v - Target %v %s\n", t.Id, task.Target, bgGreen("done"))
+        fmt.Printf("Transaction %v - Target %v %s %v\n", t.Id, task.Target, bgGreen("done"), task.Type)
         scheduer.doneChan <- task
     }
     log.Println(cyan(fmt.Sprintf("Transaction %v done ✅", t.Id)))
-    wg.Done()
+    doneChan <- 1
+    // wg.Done()
+    // cnt--;
 }
 
 // Utils

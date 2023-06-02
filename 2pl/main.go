@@ -24,8 +24,11 @@ var fgRed = color.New(color.FgRed).SprintfFunc()
 var scheduer = NewScheduer()
 var transactions = []*Transaction{};
 
+var cnt = 0
+
 func AddTransaction(t *Transaction) {
     wg.Add(1)
+    cnt++
     transactions = append(transactions, t)
     go t.WaitToStart()
 }
@@ -41,7 +44,15 @@ func AddDeadlockTransaction() {
     }))
 }
 
+var doneChan chan int = make(chan int)
+
 func main() {
+    go func() {
+        for {
+            <-doneChan
+            wg.Done()
+        }
+    }()
     rand.Seed(0)
 
     fmt.Println(bgWhiteFgBlack("---------- Generating Transactions ----------"))
@@ -53,6 +64,7 @@ func main() {
         // go genTransaction.WaitToStart()
         fmt.Printf("Generated Transaction: %v\n", genTransaction)
     }
+    fmt.Println(transactions)
     fmt.Println(bgWhiteFgBlack("---------- Now starts ----------"))
     start()
     wg.Wait()
@@ -66,8 +78,20 @@ func start() {
 
 
 func debug() {
-    fmt.Println("heldTable[1]: ", scheduer.heldTable[1])
-    fmt.Println("heldTable[2]: ", scheduer.heldTable[2])
-    fmt.Println("reqTable[1]: ", scheduer.reqTable[1])
-    fmt.Println("reqTable[2]: ", scheduer.reqTable[2])
+    fmt.Println("heldTable[1]: ")
+    for i := 0; i < scheduer.heldTable[1].Size(); i++ {
+        fmt.Println(scheduer.heldTable[1].get(i))
+    }
+    fmt.Println("heldTable[2]: ")
+    for i := 0; i < scheduer.heldTable[2].Size(); i++ {
+        fmt.Println(scheduer.heldTable[2].get(i))
+    }
+    fmt.Println("reqTable[1]: ")
+    for i := 0; i < scheduer.reqTable[1].Size(); i++ {
+        fmt.Println(scheduer.reqTable[1].get(i))
+    }
+    fmt.Println("reqTable[2]: ")
+    for i := 0; i < scheduer.reqTable[2].Size(); i++ {
+        fmt.Println(scheduer.reqTable[2].get(i))
+    }
 }

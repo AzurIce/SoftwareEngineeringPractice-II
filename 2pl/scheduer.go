@@ -1,8 +1,8 @@
 package main
 
 import (
-    "log"
-    "fmt"
+	"fmt"
+	"log"
 )
 
 type Scheduer struct {
@@ -43,12 +43,12 @@ func (s *Scheduer) addTask(t *Task) {
         }
         // Check if circled
         if transactions[t.TransactionId].circle(true, transactions[t.TransactionId]) {
-            fmt.Println("Circled")
             t.ReqResChan <- 0 // DeadLock
             return
         }
         s.reqTable[t.Target].Add(t)
     } else {
+        fmt.Printf("[addTask] Transaction %v - Target %v %s %v\n", t.TransactionId, t.Target, magenta("getted lock"), t.Type)
         s.heldTable[t.Target].Add(t)
         t.ReqResChan <- 1
     }
@@ -56,9 +56,9 @@ func (s *Scheduer) addTask(t *Task) {
 
 func (s *Scheduer) finishTask(t *Task) {
     s.heldTable[t.Target].Remove(t)
-    fmt.Printf("Transaction %v - Target %v %s\n", t.Id, t.Target, magenta("released lock"))
+    fmt.Printf("Transaction %v - Target %v %s %v\n", t.TransactionId, t.Target, magenta("released lock"), t.Type)
     // fmt.Println("finished: ", t)
-    fmt.Println(s.reqTable[t.Target])
+    // fmt.Println(s.reqTable[t.Target])
 
     if s.reqTable[t.Target].Size() == 0 {
         return
@@ -66,7 +66,7 @@ func (s *Scheduer) finishTask(t *Task) {
 
     firstReqTask, _ := s.reqTable[t.Target].get(0)
     if firstReqTask.Type == WriteType {
-        fmt.Printf("Transaction %v - Target %v %s\n", firstReqTask.Id, firstReqTask.Target, magenta("getted lock"))
+        fmt.Printf("Transaction %v - Target %v %s %v\n", firstReqTask.TransactionId, firstReqTask.Target, magenta("getted lock"), firstReqTask.Type)
         s.reqTable[t.Target].Remove(firstReqTask)
         s.heldTable[t.Target].Add(firstReqTask)
         firstReqTask.ReqResChan <- 1
@@ -77,7 +77,7 @@ func (s *Scheduer) finishTask(t *Task) {
         if reqTask.Type == WriteType {
             continue
         }
-        fmt.Printf("Transaction %v - Target %v %s\n", reqTask.Id, reqTask.Target, magenta("getted lock"))
+        fmt.Printf("Transaction %v - Target %v %s %v\n", firstReqTask.TransactionId, firstReqTask.Target, magenta("getted lock"), firstReqTask.Type)
         s.reqTable[t.Target].Remove(reqTask)
         s.heldTable[t.Target].Add(reqTask)
         reqTask.ReqResChan <- 1
@@ -94,6 +94,9 @@ func (s *Scheduer) tick() {
         case task := <- s.doneChan:
             log.Printf("[scheduer]: Get task done: %v\n", task)
             scheduer.finishTask(task)
+        // default:
+        //     fmt.Println(cnt)
+        //     time.Sleep(2 * time.Second)
         }
     }
 }
