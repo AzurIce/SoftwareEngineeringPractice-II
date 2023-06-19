@@ -1,1 +1,0 @@
-SELECT AVG(Price) AS PriceAverage FROM Products;

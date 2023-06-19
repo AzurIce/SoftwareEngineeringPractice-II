@@ -1,1 +1,0 @@
-SELECT SUM(Quantity) AS TotalItemsOrdered FROM OrderDetails;
